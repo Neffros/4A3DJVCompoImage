@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
+#include "Image.h"
 namespace fs = std::filesystem; 
 
 
@@ -65,12 +66,14 @@ int main(int argc, const char* argv[])
     {
         std::cout << entry.path() << std::endl;
         std::cout << entry.path().extension() << std::endl;
-        if (entry.path().extension() == ".PNG")
+      /*  if (entry.path().extension() == ".PNG")
         {
             std::cout << "is image" << std::endl;;
         }
         else
-            std::cout << "isn't an image" << std::endl;;
+            std::cout << "isn't an image" << std::endl;;*/
+
+        Image(entry.path().filename().string().c_str());
     }
     return 0;
 }
