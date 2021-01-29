@@ -60,20 +60,21 @@ int main(int argc, const char* argv[])
 {
     std::string path;
     path = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
-    std::cout << path << std::endl;
-
+   // std::cout << path << std::endl;
+    
     for (const auto& entry : fs::directory_iterator(path))
     {
-        std::cout << entry.path() << std::endl;
-        std::cout << entry.path().extension() << std::endl;
+      //  std::cout << entry.path() << std::endl;
+      //  std::cout << entry.path().extension() << std::endl;
       /*  if (entry.path().extension() == ".PNG")
         {
             std::cout << "is image" << std::endl;;
         }
         else
             std::cout << "isn't an image" << std::endl;;*/
-
-        Image(entry.path().filename().string().c_str());
+        Image(entry.path().string().c_str());
     }
+  //  Image("D:\\Dev\\traitement_image\\4A3DJVCompoImage\\readmeImages\\settings1.PNG");
+
     return 0;
 }
