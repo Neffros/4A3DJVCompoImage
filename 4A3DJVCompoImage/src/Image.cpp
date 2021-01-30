@@ -8,12 +8,21 @@
 //Empty image to write on for results
 Image::Image()
 {
-	uint8_t* data = NULL;
-	size_t size = 0;
-	int width = 0;
-	int height = 0;
-	int channels = 0;
+	data = NULL;
+	size = 0;
+	width = 0;
+	height = 0;
+	channels = 0;
 }
+
+//Image::Image(const int width, const int height, const int channels)
+//{
+//	uint8_t* data = NULL;
+//	size_t size = 0;
+//	this->width = width;
+//	this->height = height;
+//	this->channels = channels;
+//}
 
 Image::Image(const char* filename) {
 	if (read(filename)) {
@@ -25,7 +34,7 @@ Image::Image(const char* filename) {
 	}
 }
 
-Image::Image(int w, int h, int channels) : width(w), height(h), channels(channels) {
+Image::Image(const int w, const int h, const int channels) : width(w), height(h), channels(channels) {
 	size = w * h * channels;
 	data = new uint8_t[size];
 }
@@ -63,14 +72,19 @@ bool Image::write(const char* filename) {
 	return ok != 0;
 }
 
-int Image::getWidth()
+int Image::getWidth() const
 {
 	return this->width;
 }
 
-int Image::getHeigth()
+int Image::getHeight() const
 {
-	this->height;
+	return this->height;
+}
+
+int Image::getChannels() const
+{
+	return this->channels;
 }
 
 Extension Image::getExtension(const char* filename) {

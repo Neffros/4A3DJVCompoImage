@@ -6,89 +6,90 @@ MenuManager& MenuManager::getInstance()
     return instance;
 }
 
-std::string MenuManager::getImageDirectory()
+
+std::string MenuManager::getImageDirectory() const
 {
     return this->imageDirectory;
 }
 
-std::string MenuManager::getOutputDirectory()
+std::string MenuManager::getOutputDirectory() const
 {
     return this->outputDirectory;
 }
 
-std::string MenuManager::getOutputName()
+std::string MenuManager::getOutputName() const
 {
     return outputName;
 }
 
-bool MenuManager::getIsFading()
+bool MenuManager::getIsFading() const
 {
     return this->isFading;
 }
 
-bool MenuManager::getIsStepImage()
+bool MenuManager::getIsStepImage() const
 {
     return this->isStepImage;
 }
 
-bool MenuManager::getIsDistanceImage()
+bool MenuManager::getIsDistanceImage() const
 {
     return this->isDistanceImage;
 }
 
-int MenuManager::getOverlap()
+int MenuManager::getOverlap() const
 {
     return this->overlap;
 }
 
-int MenuManager::getStepDistance()
+int MenuManager::getStepDistance() const
 {
     return this->stepDistance;
 }
 
-int MenuManager::getMinDistance()
+int MenuManager::getMinDistance() const
 {
     return minDistance;
 }
 
-void MenuManager::setImageDirectory(std::string directory)
+void MenuManager::setImageDirectory(std::string directory) 
 {
     this->imageDirectory = directory;
 }
 
-void MenuManager::setOutputDirectory(std::string directory)
+void MenuManager::setOutputDirectory(std::string directory) 
 {
     this->outputDirectory = directory;
 }
 
-void MenuManager::setOutputName(std::string name)
+void MenuManager::setOutputName(std::string name) 
 {
     this->outputName = name;
 }
 
-void MenuManager::setIsFading(bool isFading)
+void MenuManager::setIsFading(bool isFading) 
 {
     this->isFading = isFading;
 }
 
-void MenuManager::setIsStepImage(bool isStepImage)
+void MenuManager::setIsStepImage(bool isStepImage) 
 {
     this->isStepImage = isStepImage;
 }
 
-void MenuManager::setIsDistanceImage(bool isDistanceImage)
+void MenuManager::setIsDistanceImage(bool isDistanceImage) 
 {
 
     this->isDistanceImage = isDistanceImage;
 }
 
-void MenuManager::setOverlap(int val)
+void MenuManager::setOverlap(int val)  
 {
     this->overlap = val;
 
 }
 
-void MenuManager::setStepDistance(int val)
+void MenuManager::setStepDistance(int val) 
 {
     this->stepDistance = val;
 
@@ -149,14 +150,16 @@ void MenuManager::showMainMenu()
                 std::cout << "please inform image directory and output directory first" << std::endl;
                 break;
             }
-            images = getAllImagesInPath(imageDirectory);
-            if (!checkSizeImages(images))
+            images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
+            if (!AlgoImg::AlgoImages::checkSizeImages(images))
             {
                 std::cout << "images are not the same size" << std::endl;
                 break;
             }
-            res = getBackground(images);
-            writeImage(res, this->outputName);
+            
+            res = AlgoImg::AlgoImages::getBackground(images);
+
+            AlgoImg::AlgoImages::writeImage(res, this->outputName);
             //call image processing here
             break;
         case 0:
@@ -289,4 +292,3 @@ int MenuManager::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM 
 
     return 0;
 }
-

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
-#include "Main.cpp";
+#include "AlgoImages.h"
 #include "src/Image.h"
 
 
@@ -25,15 +25,15 @@ class MenuManager
 		//single instance of menuManager
 		static MenuManager& getInstance();
 		//getters
-		std::string getImageDirectory();
-		std::string getOutputDirectory();
-		std::string getOutputName();
-		bool getIsFading();
-		bool getIsStepImage();
-		bool getIsDistanceImage();
-		int getOverlap();
-		int getStepDistance();
-		int getMinDistance();
+		std::string getImageDirectory() const;
+		std::string getOutputDirectory() const;
+		std::string getOutputName() const;
+		bool getIsFading() const;
+		bool getIsStepImage() const;
+		bool getIsDistanceImage() const;
+		int getOverlap() const;
+		int getStepDistance() const;
+		int getMinDistance() const;
 		//setters
 		void setImageDirectory(std::string directory);
 		void setOutputDirectory(std::string directory);
