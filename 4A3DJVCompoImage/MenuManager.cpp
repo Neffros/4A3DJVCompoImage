@@ -145,23 +145,27 @@ void MenuManager::showMainMenu()
             showOptionMenu();
             break;
         case 5:
-            if (this->imageDirectory == "" || this->outputDirectory == "")
             {
-                std::cout << "please inform image directory and output directory first" << std::endl;
-                break;
-            }
-            images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
-            if (!AlgoImg::AlgoImages::checkSizeImages(images))
-            {
-                std::cout << "images are not the same size" << std::endl;
+                if (this->imageDirectory == "" || this->outputDirectory == "")
+                {
+                    std::cout << "please inform image directory and output directory first" << std::endl;
+                    break;
+                }
+                images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
+                if (!AlgoImg::AlgoImages::checkSizeImages(images))
+                {
+                    std::cout << "images are not the same size" << std::endl;
+                    break;
+                }
+                Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+
+                AlgoImg::AlgoImages::getBackground(images, res);
+
+                AlgoImg::AlgoImages::writeImage(res, this->outputName);
+                //call image processing here
                 break;
             }
             
-            res = AlgoImg::AlgoImages::getBackground(images);
-
-            AlgoImg::AlgoImages::writeImage(res, this->outputName);
-            //call image processing here
-            break;
         case 0:
             std::cout << "Wrong input" << std::endl;;
             std::cin.clear();

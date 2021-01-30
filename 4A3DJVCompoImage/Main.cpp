@@ -4,7 +4,6 @@
 
 int main(int argc, const char* argv[])
 {
-    std::cout << "hi";
     MenuManager menuManager;
     
     menuManager.getInstance();

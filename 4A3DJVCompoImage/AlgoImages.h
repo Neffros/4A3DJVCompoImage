@@ -12,7 +12,7 @@ namespace AlgoImg
 	public:
 		static std::vector<Image> getAllImagesInPath(std::string path);
 		static void writeImage(Image& image, std::string filename);
-		static Image& getBackground(std::vector<Image> images);
+		static void getBackground(std::vector<Image> images, Image& res);
 		static bool checkSizeImages(std::vector<Image> images);
 	};
 }

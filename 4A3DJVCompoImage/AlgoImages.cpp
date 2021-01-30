@@ -46,9 +46,9 @@ namespace AlgoImg
     }
 
 
-    Image& AlgoImages::getBackground(std::vector<Image> images)
+    void AlgoImages::getBackground(std::vector<Image> images, Image& res)
     {
-        Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+       // Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
         std::vector<uint8_t> pixValsR;
         std::vector<uint8_t> pixValsG;
         std::vector<uint8_t> pixValsB;
@@ -74,16 +74,17 @@ namespace AlgoImg
                 uint8_t green = pixValsG[ceil(pixValsG.size() / 2)];
                 uint8_t blue = pixValsB[ceil(pixValsB.size() / 2)];
 
-                uint8_t* pixRes = res.getPixel(x, y);
-
+                /*uint8_t* pixRes = res.getPixel(x, y);
+                    
                 pixRes[0] = red;
                 pixRes[1] = green;
-                pixRes[2] = blue;
+                pixRes[2] = blue;*/
 
+                uint8_t pixRes[3] = { red,green,blue };
                 res.setPixel(x, y, pixRes);
+
             }
         }
-        return res;
     }
 
 
