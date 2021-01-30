@@ -21,8 +21,8 @@ class Image {
 		bool write(const char* filename);
 
 		Extension getExtension(const char* filename);
-		int getPixel(int x, int y, int chan) const;
-		void setPixel(int x, int y, int chan, uint8_t val);
+		uint8_t* getPixel(int x, int y) const;
+		void setPixel(int x, int y, uint8_t val);
 
 		Image& grayscale_v1();
 		Image& grayscale_v2();
