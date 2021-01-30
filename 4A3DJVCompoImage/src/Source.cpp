@@ -6,6 +6,8 @@
 #include <fstream>
 #include <filesystem>
 #include "Image.h"
+
+
 namespace fs = std::filesystem; 
 
 
@@ -56,11 +58,41 @@ std::string BrowseFolder(std::string saved_path)
     return "";
 }
 
+void showOptionMenu()
+{
+
+}
+void showMainMenu()
+{
+    int choice = 0;
+    std::cout << "Menu" << std::endl;
+    std::cout << "1 = image directory" << std::endl;
+    std::cout << "2 = output directory" << std::endl;
+    std::cout << "3 = output file name" << std::endl;
+    std::cout << "4 = options menu" << std::endl;
+    std::cin >> choice;
+    switch (choice)
+    {
+        default:
+            std::cout << "Wrong input";
+            std::cin.clear();
+            std::cin.ignore(INT_MAX, '\n');
+            showMainMenu();
+            break;
+        case 1:
+            std::string path;
+            //imageDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
+            break;
+    }
+}
+/*
 int main(int argc, const char* argv[])
 {
+
+    showMainMenu();
     std::string path;
     path = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
-  
+    
     int i = 0;
     for (const auto& entry : fs::directory_iterator(path))
     {
@@ -73,3 +105,4 @@ int main(int argc, const char* argv[])
     }
     return 0;
 }
+*/

@@ -19,9 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MenuManager.h" />
     <ClInclude Include="src\Image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="src\Image.cpp" />
     <ClCompile Include="src\Source.cpp" />
   </ItemGroup>
