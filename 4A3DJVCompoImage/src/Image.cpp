@@ -75,13 +75,16 @@ Extension Image::getExtension(const char* filename) {
 
 uint8_t* Image::getPixel(int x, int y) const
 {
-		return &data[(y * width + x) * channels];
+	return &data[(y * width + x) * channels];
 }
 
-void Image::setPixel(int x, int y, uint8_t val)
+void Image::setPixel(int x, int y, uint8_t* val)
 {
 
-	memset(data + (y*width+x), val, 3);
+	/*data[(y * width + x) * channels] = val;
+	data[(y * width + x) * channels+1] = val;
+	data[(y * width + x) * channels+2] = val;*/
+	memcpy(data + (y * width + x) * channels, val, channels);
 
 }
 
@@ -110,8 +113,9 @@ Image& Image::grayscale_v2()
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				uint8_t* pix = getPixel(x, y);
-				uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
-				setPixel(x, y, gray);
+			    uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
+				pix[0] =pix[1] =pix[2] = gray;
+				setPixel(x, y, pix);
 			}
 		}
 	}
