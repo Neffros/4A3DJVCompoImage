@@ -24,8 +24,7 @@ class Image {
 		uint8_t* getPixel(int x, int y) const;
 		void setPixel(int x, int y, uint8_t* val);
 
-		Image& grayscale_v1();
-		Image& grayscale_v2();
+		Image& grayscale();
 
 
 };

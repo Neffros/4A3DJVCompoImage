@@ -84,7 +84,7 @@ int main(int argc, const char* argv[])
   //  Image("D:\\Dev\\traitement_image\\4A3DJVCompoImage\\readmeImages\\settings1.PNG");
     Image im("D:\\Dev\\traitement_image\\4A3DJVCompoImage\\readmeImages\\settings1.PNG");
     Image grayv1 = im;
-    grayv1.grayscale_v2();
+    grayv1.grayscale();
     std::cout << "write ? " << grayv1.write("one.png");
     return 0;
 }

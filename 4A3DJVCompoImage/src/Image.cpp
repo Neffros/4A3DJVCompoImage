@@ -80,31 +80,11 @@ uint8_t* Image::getPixel(int x, int y) const
 
 void Image::setPixel(int x, int y, uint8_t* val)
 {
-
-	/*data[(y * width + x) * channels] = val;
-	data[(y * width + x) * channels+1] = val;
-	data[(y * width + x) * channels+2] = val;*/
 	memcpy(data + (y * width + x) * channels, val, channels);
-
 }
 
-Image& Image::grayscale_v1() {
-	if (channels < 3) {
-		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", this);
-	}
-	else {
-		for (int i = 0; i < size; i += channels) {
-			//(r+g+b)/3
-			int gray = (data[i] + data[i + 1] + data[i + 2]) / 3;
-			std::cout << gray;
 
-			memset(data + i, gray, 3);
-		}
-	}
-	return *this;
-}
-
-Image& Image::grayscale_v2()
+Image& Image::grayscale()
 {
 	if (channels < 3) {
 		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", this);
