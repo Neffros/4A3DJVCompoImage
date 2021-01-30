@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlgoImages.h" />
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="src\Image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AlgoImages.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="src\Image.cpp" />

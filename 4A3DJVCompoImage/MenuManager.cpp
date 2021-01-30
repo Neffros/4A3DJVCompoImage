@@ -103,7 +103,10 @@ void MenuManager::setMinDistance(int val)
 void MenuManager::showMainMenu()
 {
     int choice = 0;
+    int i = 0;
+    std::vector<Image> images;
     std::string strInput = "";
+    Image res;
     std::cout << "Main Menu" << std::endl;
     std::cout << "1 = image directory\t*mandatory" << std::endl;
     std::cout << "2 = output directory\t*mandatory" << std::endl;
@@ -111,6 +114,7 @@ void MenuManager::showMainMenu()
     std::cout << "4 = options menu" << std::endl;
     std::cout << "5 = start process" << std::endl;
     std::cout << "-1 = quit program" << std::endl;
+
     std::cin >> choice;
 
     switch (choice)
@@ -145,6 +149,14 @@ void MenuManager::showMainMenu()
                 std::cout << "please inform image directory and output directory first" << std::endl;
                 break;
             }
+            images = getAllImagesInPath(imageDirectory);
+            if (!checkSizeImages(images))
+            {
+                std::cout << "images are not the same size" << std::endl;
+                break;
+            }
+            res = getBackground(images);
+            writeImage(res, this->outputName);
             //call image processing here
             break;
         case 0:
@@ -162,7 +174,6 @@ void MenuManager::showMainMenu()
 
 
     std::cin.ignore(INT_MAX, '\n');
-    std::cout << "Enter chosen name.";
     showMainMenu();
 
 }

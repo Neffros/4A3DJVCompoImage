@@ -5,6 +5,9 @@
 #include <sstream>
 #include <fstream>
 #include <filesystem>
+#include "Main.cpp";
+#include "src/Image.h"
+
 
 class MenuManager
 {

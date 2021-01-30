@@ -5,6 +5,15 @@
 #include "stb_image_write.h"
 
 
+//Empty image to write on for results
+Image::Image()
+{
+	uint8_t* data = NULL;
+	size_t size = 0;
+	int width = 0;
+	int height = 0;
+	int channels = 0;
+}
 
 Image::Image(const char* filename) {
 	if (read(filename)) {
@@ -54,6 +63,16 @@ bool Image::write(const char* filename) {
 	return ok != 0;
 }
 
+int Image::getWidth()
+{
+	return this->width;
+}
+
+int Image::getHeigth()
+{
+	this->height;
+}
+
 Extension Image::getExtension(const char* filename) {
 	const char* ext = strrchr(filename, '.');
 	if (ext != nullptr) {
@@ -101,3 +120,4 @@ Image& Image::grayscale()
 	}
 	return *this;
 }
+
