@@ -16,6 +16,6 @@ namespace AlgoImg
 		static bool checkSizeImages(std::vector<Image> images);
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
 		static void chooseImages();
-		static void makeFinalImage(std::vector<Image> masks, Image background, Image& res);
+		static void binaryMerge(const Image& mask, const Image& image1, const Image& image2, Image& res);
 	};
 }
