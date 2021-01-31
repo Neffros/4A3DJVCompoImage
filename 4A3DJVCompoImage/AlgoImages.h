@@ -14,5 +14,6 @@ namespace AlgoImg
 		static void writeImage(Image& image, std::string filename);
 		static void getBackground(std::vector<Image> images, Image& res);
 		static bool checkSizeImages(std::vector<Image> images);
+		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
 	};
 }

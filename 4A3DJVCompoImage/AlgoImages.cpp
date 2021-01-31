@@ -1,7 +1,7 @@
 #include <cmath>
 #include "AlgoImages.h"
 #include <filesystem>
-
+#include <cmath>
 namespace fs = std::filesystem;
 namespace AlgoImg
 {
@@ -9,8 +9,15 @@ namespace AlgoImg
     {
         std::vector<Image> images;
         int i = 0;
+
         for (const auto& entry : fs::directory_iterator(path))
         {
+            std::string ext = entry.path().extension().string();
+            if (ext != ".PNG" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA")
+            {
+                std::cout << entry.path().string().c_str() << " is not a compatible image" << std::endl;;
+                continue;
+            }
             Image im(entry.path().string().c_str());
             images.push_back(im);
             i++;
@@ -44,7 +51,28 @@ namespace AlgoImg
 
         return res;
     }
+    void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
+    {
+        for (int x = 0; x < targetImage.getWidth(); x++)
+        {
+            for (int y = 0; y < targetImage.getHeight(); y++)
+            {
+                uint8_t* pixBg = background.getPixel(x, y);
+                uint8_t* pixCur = targetImage.getPixel(x, y);
+                
+                uint8_t avgBg = (pixBg[0] + pixBg[1] + pixBg[2]) / 3;
+                uint8_t avgPix = (pixCur[0] + pixCur[1] + pixCur[2]) / 3;
 
+                if (abs(avgBg - avgPix > maxDiff))
+                {
+                    uint8_t pixMask[3] = { 0 , 0 ,0 };
+                    mask.setPixel(x, y, pixMask);
+                    //auto maskExt = std::tuple_cat(mask, std::make_tuple(x, y));
+                }
+
+            }
+        }
+    }
 
     void AlgoImages::getBackground(std::vector<Image> images, Image& res)
     {
@@ -111,8 +139,11 @@ namespace AlgoImg
 
 
         }
+        std::cout << "X: " << minX << " - " << maxX << std::endl;
+        std::cout << "Y: " << minY << " - " << maxY << std::endl;
         if (minX == maxX && minY == maxY)
             return true;
         return false;
     }
+
 }

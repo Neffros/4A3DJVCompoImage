@@ -31,6 +31,7 @@ Image::Image(const char* filename) {
 	}
 	else {
 		printf("Failed to read %s\n", filename);
+		stbi_image_free(data);
 	}
 }
 

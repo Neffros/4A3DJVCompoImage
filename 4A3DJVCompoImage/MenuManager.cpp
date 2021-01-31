@@ -108,6 +108,7 @@ void MenuManager::showMainMenu()
     std::vector<Image> images;
     std::string strInput = "";
     Image res;
+    Image mask;
     std::cout << "Main Menu" << std::endl;
     std::cout << "1 = image directory\t*mandatory" << std::endl;
     std::cout << "2 = output directory\t*mandatory" << std::endl;
@@ -158,10 +159,15 @@ void MenuManager::showMainMenu()
                     break;
                 }
                 Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+                Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 
-                AlgoImg::AlgoImages::getBackground(images, res);
-
-                AlgoImg::AlgoImages::writeImage(res, this->outputName);
+                //AlgoImg::AlgoImages::getBackground(images, res);
+                //AlgoImg::AlgoImages::writeImage(res, this->outputDirectory + this->outputName); //TODO note putting in the selected folder
+                for (int i = 0; i < images.size(); i++)
+                {
+                    AlgoImg::AlgoImages::getImageMask(images[0], images[1], mask, 20.0f);
+                }
+                AlgoImg::AlgoImages::writeImage(mask, "mask.png");
                 //call image processing here
                 break;
             }
