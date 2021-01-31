@@ -9,14 +9,14 @@ namespace AlgoImg
 	{
 	private:
 		std::vector<Image> images;
-		template <typename T>
-		static std::vector<T> sortVec(std::vector<T>& vec);
 	public:
 		static std::vector<Image> getAllImagesInPath(std::string path);
 		static void writeImage(Image& image, std::string filename);
 		static void getBackground(std::vector<Image> images, Image& res);
 		static bool checkSizeImages(std::vector<Image> images);
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
+		static void chooseImages();
+		static void binaryMerge(const Image& mask, const Image& image1, const Image& image2, Image& res);
 		static void getVideoFrame(std::string outputPath, VideoCapture vid, int step);
 	};
 }

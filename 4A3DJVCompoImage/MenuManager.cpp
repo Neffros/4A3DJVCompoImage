@@ -107,7 +107,7 @@ void MenuManager::showMainMenu()
     int i = 0;
     std::vector<Image> images;
     std::string strInput = "";
-    Image res;
+    Image background;
     Image mask;
     std::cout << "Main Menu" << std::endl;
     std::cout << "1 = image directory\t*mandatory" << std::endl;
@@ -158,17 +158,16 @@ void MenuManager::showMainMenu()
                     std::cout << "images are not the same size" << std::endl;
                     break;
                 }
-                Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-                Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-
-                //AlgoImg::AlgoImages::getBackground(images, res);
-                //AlgoImg::AlgoImages::writeImage(res, this->outputDirectory + this->outputName); //TODO note putting in the selected folder
+              
+                Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+                AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
                 for (int i = 0; i < images.size(); i++)
                 {
-                    AlgoImg::AlgoImages::getImageMask(images[0], images[1], mask, 20.0f);
+                    Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+                    AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
+                    AlgoImg::AlgoImages::writeImage(mask, "mask" + std::to_string(i) + ".png");
                 }
-                AlgoImg::AlgoImages::writeImage(mask, "mask.png");
-                //call image processing here
+
                 break;
             }
             
