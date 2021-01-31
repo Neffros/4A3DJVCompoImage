@@ -159,10 +159,9 @@ void MenuManager::showMainMenu()
                     break;
                 }
                 //Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+                //AlgoImg::AlgoImages::getBackground(images, background);
 
                 Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-                //AlgoImg::AlgoImages::getBackground(images, background);
-                //E:\dev\4A3DJVCompoImage
                 AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO note putting in the selected folder
                 for (int i = 0; i < images.size(); i++)
                 {

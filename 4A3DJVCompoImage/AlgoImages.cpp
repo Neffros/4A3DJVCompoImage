@@ -54,6 +54,9 @@ namespace AlgoImg
     }
     void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
     {
+        uint8_t pixBlack[3] = { 0 , 0 ,0 };
+        uint8_t pixWhite[3] = {255, 255 ,255};
+
         for (int x = 0; x < targetImage.getWidth(); x++)
         {
             for (int y = 0; y < targetImage.getHeight(); y++)
@@ -67,8 +70,12 @@ namespace AlgoImg
                 if (abs(avgBg - avgPix) > maxDiff)
                 {
                     //uint8_t pixMask[3] = { 0 , 0 ,0 };
-                    mask.setPixel(x, y, pixCur);
+                    mask.setPixel(x, y, pixWhite);
                     //auto maskExt = std::tuple_cat(mask, std::make_tuple(x, y));
+                }
+                else 
+                {
+                    mask.setPixel(x, y, pixBlack);
                 }
 
             }
