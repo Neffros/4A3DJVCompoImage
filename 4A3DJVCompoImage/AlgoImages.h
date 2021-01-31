@@ -1,5 +1,7 @@
 #pragma once
 #include "src/Image.h"
+#include <opencv2/opencv.hpp>
+using namespace cv;
 
 namespace AlgoImg
 {
@@ -15,5 +17,7 @@ namespace AlgoImg
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
 		static void chooseImages();
 		static void binaryMerge(Image* mask, Image* image1, Image* image2);
+		static void getVideoFrame(std::string outputPath, std::string filename, int step);
+		static bool checkVideoInPath(std::string path, std::string videoName);
 	};
 }
