@@ -1,6 +1,6 @@
 #include "MenuManager.h"
 #include "src/Image.h"
-
+#include "opencv2/opencv.hpp"
 
 int main(int argc, const char* argv[])
 {
@@ -22,5 +22,7 @@ int main(int argc, const char* argv[])
         std::cout << "write ? " << grayv1.write(filename.c_str());
         i++;
     }*/
+    
+
     return 0;
 }

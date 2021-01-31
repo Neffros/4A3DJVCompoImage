@@ -1,5 +1,7 @@
 #pragma once
 #include "src/Image.h"
+#include <opencv2/opencv.hpp>
+using namespace cv;
 
 namespace AlgoImg
 {
@@ -15,5 +17,6 @@ namespace AlgoImg
 		static void getBackground(std::vector<Image> images, Image& res);
 		static bool checkSizeImages(std::vector<Image> images);
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
+		static void getVideoFrame(std::string outputPath, VideoCapture vid, int step);
 	};
 }

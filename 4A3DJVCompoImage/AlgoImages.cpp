@@ -3,13 +3,15 @@
 #include <filesystem>
 #include <cmath>
 namespace fs = std::filesystem;
+using namespace cv;
+
 namespace AlgoImg
 {
     std::vector<Image> AlgoImages::getAllImagesInPath(std::string path)
     {
         std::vector<Image> images;
         int i = 0;
-
+    
         for (const auto& entry : fs::directory_iterator(path))
         {
             std::string ext = entry.path().extension().string();
@@ -94,9 +96,9 @@ namespace AlgoImg
                     pixValsG.push_back(pix[1]);
                     pixValsB.push_back(pix[2]);
                 }
-                pixValsR = sortVec(pixValsR);
-                pixValsG = sortVec(pixValsG);
-                pixValsB = sortVec(pixValsB);
+                std::sort(pixValsR.begin(), pixValsR.end());
+                std::sort(pixValsG.begin(), pixValsG.end());
+                std::sort(pixValsB.begin(), pixValsB.end());
 
                 uint8_t red = pixValsR[ceil(pixValsR.size() / 2)];
                 uint8_t green = pixValsG[ceil(pixValsG.size() / 2)];
@@ -144,6 +146,34 @@ namespace AlgoImg
         if (minX == maxX && minY == maxY)
             return true;
         return false;
+    }
+
+    void AlgoImages::getVideoFrame(std::string outputPath, VideoCapture vid, int step) {
+        int c = 0;
+        int nbImg = 0;
+        // Check if camera opened successfully
+        if (!vid.isOpened()) {
+            std::cout << "Error opening video stream or file" << std::endl;
+            return;
+        }
+
+        while (1) {
+
+            Mat frame;
+            // Capture frame-by-frame
+            vid >> frame;
+
+            // If the frame is empty, break immediately
+            if (frame.empty())
+                break;
+
+            c++;
+            if (c%step == 0) {
+                imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
+                c = 0;
+                nbImg++;
+            }
+        }
     }
 
 }
