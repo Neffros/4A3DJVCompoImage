@@ -9,11 +9,12 @@ namespace AlgoImg
     {
         std::vector<Image> images;
         int i = 0;
-
+        
         for (const auto& entry : fs::directory_iterator(path))
         {
             std::string ext = entry.path().extension().string();
-            if (ext != ".PNG" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA")
+            
+            if (ext != ".png" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA")
             {
                 std::cout << entry.path().string().c_str() << " is not a compatible image" << std::endl;;
                 continue;
@@ -63,13 +64,30 @@ namespace AlgoImg
                 uint8_t avgBg = (pixBg[0] + pixBg[1] + pixBg[2]) / 3;
                 uint8_t avgPix = (pixCur[0] + pixCur[1] + pixCur[2]) / 3;
 
-                if (abs(avgBg - avgPix > maxDiff))
+                if (abs(avgBg - avgPix) > maxDiff)
                 {
-                    uint8_t pixMask[3] = { 0 , 0 ,0 };
-                    mask.setPixel(x, y, pixMask);
+                    //uint8_t pixMask[3] = { 0 , 0 ,0 };
+                    mask.setPixel(x, y, pixCur);
                     //auto maskExt = std::tuple_cat(mask, std::make_tuple(x, y));
                 }
 
+            }
+        }
+    }
+
+    void AlgoImages::makeFinalImage(std::vector<Image> masks, Image background, Image& res)
+    {
+        for (int maskIndex = 0; maskIndex < masks.size(); maskIndex++)
+        {
+            for (int x = 0; x < background.getWidth(); x++)
+            {
+                for (int y = 0; y < background.getHeight(); y++)
+                {
+                    uint8_t* pixMask = masks[maskIndex].getPixel(x, y);
+                    uint8_t* pixBg = background.getPixel(x, y);
+
+                    res.setPixel(x, y, pixMask);
+                }
             }
         }
     }
