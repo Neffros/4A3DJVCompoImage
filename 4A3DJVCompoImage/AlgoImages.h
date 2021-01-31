@@ -17,6 +17,7 @@ namespace AlgoImg
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
 		static void chooseImages();
 		static void binaryMerge(const Image& mask, const Image& image1, const Image& image2, Image& res);
-		static void getVideoFrame(std::string outputPath, VideoCapture vid, int step);
+		static void getVideoFrame(std::string outputPath, std::string filename, int step);
+		static bool checkVideoInPath(std::string path, std::string videoName);
 	};
 }

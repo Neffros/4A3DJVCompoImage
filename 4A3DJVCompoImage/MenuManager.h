@@ -15,6 +15,9 @@ class MenuManager
 		std::string imageDirectory;
 		std::string outputDirectory;
 		std::string outputName = "output.PNG";
+		std::string videoDirectory;
+		std::string videoName;
+		bool isVideo;
 		bool isFading;
 		bool isStepImage;
 		bool isDistanceImage;

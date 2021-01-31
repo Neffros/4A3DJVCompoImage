@@ -107,7 +107,7 @@ void MenuManager::showMainMenu()
     int i = 0;
     std::vector<Image> images;
     std::string strInput = "";
-    Image background;
+    Image res;
     Image mask;
     std::cout << "Main Menu" << std::endl;
     std::cout << "1 = image directory\t*mandatory" << std::endl;
@@ -115,6 +115,8 @@ void MenuManager::showMainMenu()
     std::cout << "3 = output file name" << std::endl;
     std::cout << "4 = options menu" << std::endl;
     std::cout << "5 = start process" << std::endl;
+    std::cout << "6 = Choose video" << std::endl;
+    std::cout << "7 = Choose videos name" << std::endl;
     std::cout << "-1 = quit program" << std::endl;
 
     std::cin >> choice;
@@ -147,19 +149,33 @@ void MenuManager::showMainMenu()
             break;
         case 5:
             {
-                if (this->imageDirectory == "" || this->outputDirectory == "")
-                {
-                    std::cout << "please inform image directory and output directory first" << std::endl;
-                    break;
+                if (AlgoImg::AlgoImages::checkVideoInPath(this->videoDirectory, this->videoName)) {
+                    AlgoImg::AlgoImages::getVideoFrame(this->outputDirectory, this->videoDirectory + "\\" + this->videoName, 5);
+                    images = AlgoImg::AlgoImages::getAllImagesInPath(this->outputDirectory);
                 }
-                images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
+                else {
+                    if (this->videoDirectory != "" || this->videoName != "") {
+                        std::cout << "could not read video" << std::endl;
+                        this->videoDirectory = "";
+                        this->videoName = "";
+                        break;
+                    } else if (this->imageDirectory == "" || this->outputDirectory == "")
+                    {
+                        std::cout << "please inform image directory and output directory first" << std::endl;
+                        break;
+                    }
+                    images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
+                }
+
+
                 if (!AlgoImg::AlgoImages::checkSizeImages(images))
                 {
                     std::cout << "images are not the same size" << std::endl;
                     break;
                 }
-              
-                Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+                //Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+                Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+                AlgoImg::AlgoImages::getBackground(images, background);
                 AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
                 for (int i = 0; i < images.size(); i++)
                 {
@@ -167,9 +183,21 @@ void MenuManager::showMainMenu()
                     AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
                     AlgoImg::AlgoImages::writeImage(mask, "mask" + std::to_string(i) + ".png");
                 }
-
                 break;
             }
+        case 6: {
+            this->videoDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
+            std::cout << "Chosen path: " << this->videoDirectory << std::endl;
+            break;
+        }
+        case 7:
+        {
+            std::cout << "enter video name (with extension)" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(INT_MAX, '\n');
+            std::cin >> this->videoName;
+            break;
+        }
             
         case 0:
             std::cout << "Wrong input" << std::endl;;

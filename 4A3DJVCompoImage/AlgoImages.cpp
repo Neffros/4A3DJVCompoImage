@@ -16,7 +16,7 @@ namespace AlgoImg
 		{
 			std::string ext = entry.path().extension().string();
 
-			if (ext != ".png" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA")
+			if (ext != ".png" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA" && ext != ".jpg")
 			{
 				std::cout << entry.path().string().c_str() << " is not a compatible image" << std::endl;;
 				continue;
@@ -27,6 +27,22 @@ namespace AlgoImg
 		}
 		return images;
 	}
+
+	bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
+		int i = 0;
+		for (const auto& entry : fs::directory_iterator(path))
+		{
+			std::cout << path + "\\" + videoName << std::endl;
+			if (path + "\\" + videoName == entry.path().string().c_str()) {
+				return true;
+			}
+
+			i++;
+		}
+
+		return false;
+	}
+
 
 	void AlgoImages::writeImage(Image& image, std::string filename)
 	{
@@ -149,32 +165,33 @@ namespace AlgoImg
 		return false;
 	}
 
-    void AlgoImages::getVideoFrame(std::string outputPath, VideoCapture vid, int step) {
-        int c = 0;
-        int nbImg = 0;
-        // Check if camera opened successfully
-        if (!vid.isOpened()) {
-            std::cout << "Error opening video stream or file" << std::endl;
-            return;
-        }
+	void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirectory, int step) {
+		VideoCapture vid(videoDirectory);
+		int c = 0;
+		int nbImg = 0;
+		// Check if camera opened successfully
+		if (!vid.isOpened()) {
+			std::cout << "Error opening video stream or file" << std::endl;
+			return;
+		}
 
-        while (1) {
+		Mat frame;
+		while (1) {
 
-            Mat frame;
-            // Capture frame-by-frame
-            vid >> frame;
+			// Capture frame-by-frame
+			vid >> frame;
 
-            // If the frame is empty, break immediately
-            if (frame.empty())
-                break;
+			// If the frame is empty, break immediately
+			if (frame.empty())
+				break;
 
-            c++;
-            if (c%step == 0) {
-                imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
-                c = 0;
-                nbImg++;
-            }
-        }
-    }
+			c++;
+			if (c % step == 0) {
+				imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
+				c = 0;
+				nbImg++;
+			}
+		}
+	}
 
 }
