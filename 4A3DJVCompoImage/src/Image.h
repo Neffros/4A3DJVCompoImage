@@ -15,7 +15,6 @@ class Image {
 		Image();
 		Image(const int width, const int height, const int channels);
 		Image(const char* filename);
-		//Image(int w, int h, int channels);
 		Image(const Image& img);
 		~Image();
 

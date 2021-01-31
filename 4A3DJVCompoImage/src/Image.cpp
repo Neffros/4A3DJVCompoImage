@@ -35,6 +35,8 @@ Image::Image(const char* filename) {
 	}
 }
 
+
+
 Image::Image(const int w, const int h, const int channels) : width(w), height(h), channels(channels) {
 	size = w * h * channels;
 	data = new uint8_t[size];
@@ -127,8 +129,8 @@ Image& Image::grayscale()
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				uint8_t* pix = getPixel(x, y);
-			    uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
-				pix[0] =pix[1] =pix[2] = gray;
+				uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
+				pix[0] = pix[1] = pix[2] = gray;
 				setPixel(x, y, pix);
 			}
 		}

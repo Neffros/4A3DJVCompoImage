@@ -60,24 +60,21 @@ namespace AlgoImg
 		}
 	}
 
-	void AlgoImages::binaryMerge(const Image& mask, const Image& image1, const Image& image2, Image& res)
+	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
 	{
 
-		for (int x = 0; x < image1.getWidth(); x++)
+		for (int x = 0; x < image1->getWidth(); x++)
 		{
-			for (int y = 0; y < image1.getHeight(); y++)
+			for (int y = 0; y < image1->getHeight(); y++)
 			{
-				uint8_t* pix1 = image1.getPixel(x, y);
-				uint8_t* pix2 = image2.getPixel(x, y);
-				uint8_t* pixM = mask.getPixel(x, y);
-				if (pixM[0] == 0)
+				uint8_t* pix1 = image1->getPixel(x, y);
+				uint8_t* pix2 = image2->getPixel(x, y);
+				uint8_t* pixM = mask->getPixel(x, y);
+				if (pixM[0] != 0)
 				{
-					res.setPixel(x, y, pix1);
+					image1->setPixel(x, y, pix2);
 				}
-				else
-				{
-					res.setPixel(x, y, pix2);
-				}
+				
 			}
 		}
 	}
