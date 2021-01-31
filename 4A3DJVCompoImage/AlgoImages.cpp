@@ -31,38 +31,12 @@ namespace AlgoImg
 		std::cout << "write ? " << image.write(filename.c_str());
 	}
 
-        return res;
-    }
-    void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
-    {
-        uint8_t pixBlack[3] = { 0 , 0 ,0 };
-        uint8_t pixWhite[3] = {255, 255 ,255};
 
-        for (int x = 0; x < targetImage.getWidth(); x++)
-        {
-            for (int y = 0; y < targetImage.getHeight(); y++)
-            {
-                uint8_t* pixBg = background.getPixel(x, y);
-                uint8_t* pixCur = targetImage.getPixel(x, y);
-                
-                uint8_t avgBg = (pixBg[0] + pixBg[1] + pixBg[2]) / 3;
-                uint8_t avgPix = (pixCur[0] + pixCur[1] + pixCur[2]) / 3;
-
-                if (abs(avgBg - avgPix) > maxDiff)
-                {
-                    //uint8_t pixMask[3] = { 0 , 0 ,0 };
-                    mask.setPixel(x, y, pixWhite);
-                    //auto maskExt = std::tuple_cat(mask, std::make_tuple(x, y));
-                }
-                else 
-                {
-                    mask.setPixel(x, y, pixBlack);
-                }
-
-		return res;
-	}
 	void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
 	{
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+		uint8_t pixWhite[3] = { 255, 255 ,255 };
+
 		for (int x = 0; x < targetImage.getWidth(); x++)
 		{
 			for (int y = 0; y < targetImage.getHeight(); y++)
@@ -75,9 +49,11 @@ namespace AlgoImg
 
 				if (abs(avgBg - avgPix) > maxDiff)
 				{
-					//uint8_t pixMask[3] = { 0 , 0 ,0 };
-					mask.setPixel(x, y, pixCur);
-					//auto maskExt = std::tuple_cat(mask, std::make_tuple(x, y));
+					mask.setPixel(x, y, pixWhite);
+				}
+				else
+				{
+					mask.setPixel(x, y, pixBlack);
 				}
 
 			}
@@ -94,7 +70,7 @@ namespace AlgoImg
 				uint8_t* pix1 = image1.getPixel(x, y);
 				uint8_t* pix2 = image2.getPixel(x, y);
 				uint8_t* pixM = mask.getPixel(x, y);
-				if (pixM[0] == 0 )
+				if (pixM[0] == 0)
 				{
 					res.setPixel(x, y, pix1);
 				}
@@ -108,7 +84,6 @@ namespace AlgoImg
 
 	void AlgoImages::getBackground(std::vector<Image> images, Image& res)
 	{
-		// Image res(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		std::vector<uint8_t> pixValsR;
 		std::vector<uint8_t> pixValsG;
 		std::vector<uint8_t> pixValsB;
@@ -126,19 +101,13 @@ namespace AlgoImg
 					pixValsG.push_back(pix[1]);
 					pixValsB.push_back(pix[2]);
 				}
-				pixValsR = sortVec(pixValsR);
-				pixValsG = sortVec(pixValsG);
-				pixValsB = sortVec(pixValsB);
+				std::sort(pixValsR.begin(), pixValsR.end());
+				std::sort(pixValsG.begin(), pixValsG.end());
+				std::sort(pixValsB.begin(), pixValsB.end());
 
 				uint8_t red = pixValsR[ceil(pixValsR.size() / 2)];
 				uint8_t green = pixValsG[ceil(pixValsG.size() / 2)];
 				uint8_t blue = pixValsB[ceil(pixValsB.size() / 2)];
-
-				/*uint8_t* pixRes = res.getPixel(x, y);
-
-				pixRes[0] = red;
-				pixRes[1] = green;
-				pixRes[2] = blue;*/
 
 				uint8_t pixRes[3] = { red,green,blue };
 				res.setPixel(x, y, pixRes);

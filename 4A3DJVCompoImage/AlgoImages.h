@@ -7,8 +7,6 @@ namespace AlgoImg
 	{
 	private:
 		std::vector<Image> images;
-		template <typename T>
-		static std::vector<T> sortVec(std::vector<T>& vec);
 	public:
 		static std::vector<Image> getAllImagesInPath(std::string path);
 		static void writeImage(Image& image, std::string filename);
