@@ -29,6 +29,7 @@ namespace AlgoImg
 	}
 
 	bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
+		if (path == "" || videoName == "") return false;
 		int i = 0;
 		for (const auto& entry : fs::directory_iterator(path))
 		{
