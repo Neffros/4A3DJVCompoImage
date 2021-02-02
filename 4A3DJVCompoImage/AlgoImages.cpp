@@ -91,6 +91,51 @@ namespace AlgoImg
 		return res.size();
 	}
 
+	Image AlgoImages::removeConnexeComposante(Image& image, int x, int y)
+	{
+		std::deque<std::pair<int, int>> q;
+		q.push_back(std::make_pair(x, y));
+		Image copy(image);
+		copy.setPixel(x, y, 0);
+		std::vector<std::pair<int, int>> res;
+		while (!q.empty())
+		{
+			std::pair<int, int> current = q.back();
+			res.push_back(current);
+			q.pop_back(); // remove it because back() does not do it
+			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+			for (int i = 0; i < neigbhors.size(); i++)
+			{
+				copy.setPixel(current.first, current.second, 0);
+				q.push_front(current);
+			}
+
+		}
+		return copy;
+
+
+	}
+
+	void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
+	{
+		Image copy(image);
+		int w = copy.getWidth();
+		int h = copy.getHeight();
+		for(int x = 0; x < w; x++)
+		{
+			for (int y = 0; y <h; y++)
+			{
+				if(copy.getPixel(x,y)[0] == 255)
+				{
+					if( getConnexeComposanteSize(image, x, y) < threshold)
+					{
+						image = removeConnexeComposante(image, x, y);
+					}
+				}
+			}
+		}
+	}
+
 
 	void AlgoImages::writeImage(Image& image, std::string filename)
 	{
