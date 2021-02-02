@@ -25,7 +25,7 @@ namespace AlgoImg
 		/// Return eights white neigbhors of a white pixel. 
 		/// </summary>
 		static std::vector<std::pair<int, int>> getConnexeNeighborsPixel(Image& image, int x, int y);
-		static void getConnexeComposanteSize(Image& image, int x, int y);		
+		static int getConnexeComposanteSize(Image& image, int x, int y);		
 		static void cleanNoise(Image& image, int threshold);		
 
 	};

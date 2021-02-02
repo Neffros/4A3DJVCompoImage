@@ -68,6 +68,29 @@ namespace AlgoImg
 		return neigbhors;
 	}
 
+	int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
+	{
+		std::deque<std::pair<int, int>> q;
+		q.push_back(std::make_pair(x, y));
+		Image copy(image);
+		copy.setPixel(x, y, 0);
+		std::vector<std::pair<int, int>> res;
+		while(!q.empty())
+		{
+			std::pair<int, int> current = q.back();
+			res.push_back(current);
+			q.pop_back(); // remove it because back() does not do it
+			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+			for (int i = 0; i < neigbhors.size(); i++)
+			{
+				copy.setPixel(current.first, current.second, 0);
+				q.push_front(current);
+			}
+
+		}
+		return res.size();
+	}
+
 
 	void AlgoImages::writeImage(Image& image, std::string filename)
 	{

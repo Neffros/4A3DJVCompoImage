@@ -27,7 +27,6 @@ class Image {
 		Extension getExtension(const char* filename);
 		uint8_t* getPixel(int x, int y) const;
 		void setPixel(int x, int y, uint8_t* val);
-
 		
 		Image& grayscale();
 
