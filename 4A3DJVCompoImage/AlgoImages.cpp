@@ -44,6 +44,30 @@ namespace AlgoImg
 		return false;
 	}
 
+	std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
+	{
+		// eight-connexity neighbors x and y coordinates
+		int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
+		std::vector<std::pair<int, int>> neigbhors;
+		for (int i = 0; i < 16; i++)
+		{
+			int x_offset = x + eight[i];
+			int y_offset = y + eight[i+1];
+			if (x_offset >= 0 && y_offset >= 0)
+			{
+				if (x_offset < image.getWidth() && y_offset < image.getHeight())
+				{
+					uint8_t* p = image.getPixel(x_offset, y_offset);
+					if (p[0] == 255)
+					{
+						neigbhors.push_back(std::make_pair(x_offset, y_offset));
+					}
+				}
+			}
+		}
+		return neigbhors;
+	}
+
 
 	void AlgoImages::writeImage(Image& image, std::string filename)
 	{
@@ -93,7 +117,7 @@ namespace AlgoImg
 				{
 					image1->setPixel(x, y, pix2);
 				}
-				
+
 			}
 		}
 	}
