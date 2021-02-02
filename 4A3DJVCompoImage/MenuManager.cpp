@@ -175,13 +175,16 @@ void MenuManager::showMainMenu()
                 }
                 //Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
                 Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-                AlgoImg::AlgoImages::getBackground(images, background);
-                AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
-                for (int i = 0; i < images.size(); i++)
-                {
-                    Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-                    AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
-                }
+				Image image_final(background);
+				AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
+				for (int i = 0; i < images.size(); i++)
+				{
+					Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+					AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
+
+					AlgoImg::AlgoImages::binaryMerge(&mask, &image_final, &images[i]);
+				}
+				AlgoImg::AlgoImages::writeImage(image_final, "image_final.png");
                 break;
             }
         case 6: {
