@@ -197,7 +197,6 @@ void MenuManager::showMainMenu()
             std::cin >> this->videoName;
             break;
         }
-            
         case 0:
             std::cout << "Wrong input" << std::endl;;
             std::cin.clear();
@@ -210,37 +209,10 @@ void MenuManager::showMainMenu()
             break;
         }
     }
-		Image background("D:\\dev\\traitement_image\\4A3DJVCompoImage\\output\\background.png");
-		Image image_final(background);
-		AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
-		for (int i = 0; i < images.size(); i++)
-		{
-			Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-			AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
-
-			AlgoImg::AlgoImages::binaryMerge(&mask, &image_final, &images[i]);
-		}
-		AlgoImg::AlgoImages::writeImage(image_final, "image_final.png");
-
-		break;
-	}
-
-	case 0:
-		std::cout << "Wrong input" << std::endl;;
-		std::cin.clear();
-		std::cin.ignore(INT_MAX, '\n');
-		showMainMenu();
-		break;
-	case -1:
-	{
-		std::exit(0);
-		break;
-	}
-	}
-
 
 	std::cin.ignore(INT_MAX, '\n');
 	showMainMenu();
+	
 
 }
 
