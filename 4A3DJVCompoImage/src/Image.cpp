@@ -42,6 +42,7 @@ Image::Image(const int w, const int h, const int channels) : width(w), height(h)
 	data = new uint8_t[size];
 }
 
+
 Image::Image(const Image& img) : Image(img.width, img.height, img.channels) {
 	memcpy(data, img.data, size);
 }

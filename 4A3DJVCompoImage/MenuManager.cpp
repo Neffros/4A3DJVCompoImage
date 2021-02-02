@@ -182,8 +182,11 @@ void MenuManager::showMainMenu()
 				{
 					Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 					AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
-
-					AlgoImg::AlgoImages::binaryMerge(&mask, &image_final, &images[i]);
+					AlgoImg::AlgoImages::writeImage(mask, "mask" + std::to_string(i) + ".png");
+					Image cleaned_mask(mask);
+					AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
+					AlgoImg::AlgoImages::writeImage(cleaned_mask, "cleaned_mask" + std::to_string(i) + ".png");
+					AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
 				}
 				AlgoImg::AlgoImages::writeImage(image_final, "image_final.png");
                 break;

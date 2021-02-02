@@ -73,7 +73,8 @@ namespace AlgoImg
 		std::deque<std::pair<int, int>> q;
 		q.push_back(std::make_pair(x, y));
 		Image copy(image);
-		copy.setPixel(x, y, 0);
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+		copy.setPixel(x, y, pixBlack);
 		std::vector<std::pair<int, int>> res;
 		while(!q.empty())
 		{
@@ -83,8 +84,8 @@ namespace AlgoImg
 			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 			for (int i = 0; i < neigbhors.size(); i++)
 			{
-				copy.setPixel(current.first, current.second, 0);
-				q.push_front(current);
+				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+				q.push_front(neigbhors[i]);
 			}
 
 		}
@@ -96,7 +97,9 @@ namespace AlgoImg
 		std::deque<std::pair<int, int>> q;
 		q.push_back(std::make_pair(x, y));
 		Image copy(image);
-		copy.setPixel(x, y, 0);
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+
+		copy.setPixel(x, y, pixBlack);
 		std::vector<std::pair<int, int>> res;
 		while (!q.empty())
 		{
@@ -106,8 +109,8 @@ namespace AlgoImg
 			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 			for (int i = 0; i < neigbhors.size(); i++)
 			{
-				copy.setPixel(current.first, current.second, 0);
-				q.push_front(current);
+				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+				q.push_front(neigbhors[i]);
 			}
 
 		}
@@ -127,7 +130,7 @@ namespace AlgoImg
 			{
 				if(copy.getPixel(x,y)[0] == 255)
 				{
-					if( getConnexeComposanteSize(image, x, y) < threshold)
+					if( getConnexeComposanteSize(copy, x, y) < threshold)
 					{
 						image = removeConnexeComposante(image, x, y);
 					}
