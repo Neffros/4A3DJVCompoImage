@@ -22,9 +22,9 @@ std::string MenuManager::getOutputName() const
 	return outputName;
 }
 
-bool MenuManager::getIsFading() const
+FadingState MenuManager::getFade() const
 {
-	return this->isFading;
+	return this->fade;
 }
 
 bool MenuManager::getIsStepImage() const
@@ -67,9 +67,9 @@ void MenuManager::setOutputName(std::string name)
 	this->outputName = name;
 }
 
-void MenuManager::setIsFading(bool isFading)
+void MenuManager::setFade(FadingState fadingState)
 {
-	this->isFading = isFading;
+	this->fade = fadingState;
 }
 
 void MenuManager::setIsStepImage(bool isStepImage)
@@ -98,157 +98,89 @@ void MenuManager::setStepDistance(int val)
 void MenuManager::setMinDistance(int val)
 {
 	this->minDistance = val;
-
 }
 
 void MenuManager::showMainMenu()
 {
-    int choice = 0;
-    int i = 0;
-    std::vector<Image> images;
-    std::string strInput = "";
-    Image res;
-    Image mask;
-    std::cout << "Main Menu" << std::endl;
-    std::cout << "1 = image directory\t*mandatory" << std::endl;
-    std::cout << "2 = output directory\t*mandatory" << std::endl;
-    std::cout << "3 = output file name" << std::endl;
-    std::cout << "4 = options menu" << std::endl;
-    std::cout << "5 = start process" << std::endl;
-    std::cout << "6 = Choose video" << std::endl;
-    std::cout << "7 = Choose videos name" << std::endl;
-    std::cout << "-1 = quit program" << std::endl;
-
-	std::cin >> choice;
-
-    switch (choice)
-    {
-        default:
-            std::cout << "Wrong input" << std::endl;;
-            std::cin.clear();
-            std::cin.ignore(INT_MAX, '\n');
-            showMainMenu();
-            break;
-        case 1:
-            this->imageDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
-            std::cout << "Chosen path: " << this->imageDirectory << std::endl;
-            break;
-        case 2:
-            this->outputDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\";
-            std::cout << "Chosen path: " << this->outputDirectory << std::endl;
-            break;
-        case 3:
-            std::cin.clear();
-            std::cin.ignore(INT_MAX, '\n');
-            std::cout << "Enter chosen name." << std::endl;
-            std::cin >> strInput;
-            this->outputName = strInput;
-            break;
-        case 4:
-            showOptionMenu();
-            break;
-        case 5:
-            {
-                if (AlgoImg::AlgoImages::checkVideoInPath(this->videoDirectory, this->videoName)) {
-                    AlgoImg::AlgoImages::getVideoFrame(this->outputDirectory, this->videoDirectory + "\\" + this->videoName, 5);
-                    images = AlgoImg::AlgoImages::getAllImagesInPath(this->outputDirectory);
-                }
-                else {
-                    if (this->videoDirectory != "" || this->videoName != "") {
-                        std::cout << "could not read video" << std::endl;
-                        this->videoDirectory = "";
-                        this->videoName = "";
-                        break;
-                    } else if (this->imageDirectory == "" || this->outputDirectory == "")
-                    {
-                        std::cout << "please inform image directory and output directory first" << std::endl;
-                        break;
-                    }
-                    images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
-                }
-
-
-                if (!AlgoImg::AlgoImages::checkSizeImages(images))
-                {
-                    std::cout << "images are not the same size" << std::endl;
-                    break;
-                }
-                //Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-                Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-				AlgoImg::AlgoImages::getBackground(images, background);
-				Image image_final(background);
-				AlgoImg::AlgoImages::writeImage(background, this->outputDirectory,this->outputName); //TODO not putting in the selected folder
-				for (int i = 0; i < images.size(); i++)
-				{
-					Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-					AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 50.0f);
-					AlgoImg::AlgoImages::writeImage(mask, this->outputDirectory, "mask" + std::to_string(i) + ".png");
-					Image cleaned_mask(mask);
-					//AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
-					AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
-					//AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
-				}
-				AlgoImg::AlgoImages::writeImage(image_final, this->outputDirectory,"image_final.png");
-                break;
-            }
-        case 6: {
-            this->videoDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
-            std::cout << "Chosen path: " << this->videoDirectory << std::endl;
-            break;
-        }
-        case 7:
-        {
-            std::cout << "enter video name (with extension)" << std::endl;
-            std::cin.clear();
-            std::cin.ignore(INT_MAX, '\n');
-            std::cin >> this->videoName;
-            break;
-        }
-        case 0:
-            std::cout << "Wrong input" << std::endl;;
-            std::cin.clear();
-            std::cin.ignore(INT_MAX, '\n');
-            showMainMenu();
-            break;
-        case -1:
-        {
-            std::exit(0);
-            break;
-        }
-    }
-
-	std::cin.ignore(INT_MAX, '\n');
-	showMainMenu();
-	
-
-}
-
-void MenuManager::showOptionMenu()
-{
 	int choice = 0;
-	std::string strInput = "";
-	std::cout << "Options Menu" << std::endl;
-	std::cout << "1 = enable/disable fading" << std::endl;
-	std::cout << "2 = enable/disable stepping" << std::endl;
-	std::cout << "3 = set step value" << std::endl;
-	std::cout << "4 = enable/disable distance" << std::endl;
-	std::cout << "5 = set minimal distance value" << std::endl;
-	std::cout << "-1 = return to Main Menu" << std::endl;
+
+	std::cout << "Main Menu" << std::endl;
+	std::cout << "1 = image processing" << std::endl;
+	std::cout << "2 = video processing" << std::endl;
+	std::cout << "3 = algorithm settings" << std::endl;
+	std::cout << "\n\n4 = start proccess" << std::endl;
+	std::cout << "-1 = quit program" << std::endl;
+
 	std::cin >> choice;
+
+
 	switch (choice)
 	{
 	default:
 		std::cout << "Wrong input" << std::endl;;
 		std::cin.clear();
 		std::cin.ignore(INT_MAX, '\n');
-		showOptionMenu();
+		showMainMenu();
 		break;
 	case 1:
-		this->isFading = !this->isFading;
-		this->isFading ?
-			std::cout << "fading is now enabled" << std::endl :
-			std::cout << "fading is now disabled" << std::endl;
+		showImageMenu();
 		break;
+	case 2:
+		showVideoMenu();
+		break;
+	case 3:
+		showOptionMenu();
+		break;
+	case 4:
+		startImageProcess();
+		break;
+	case -1:
+		std::exit(0);
+		break;
+
+	}
+	std::cin.ignore(INT_MAX, '\n');
+	showMainMenu();
+
+}
+
+void MenuManager::showOptionMenu()
+{
+	int choice = 0;
+
+	std::cout << "Options Menu" << std::endl;
+	std::cout << "1 = fading settings" << std::endl;
+	std::cout << "2 = overlap settings" << std::endl;
+	std::cout << "3 = step settings" << std::endl;
+	std::cout << "4 = minimal distance settings" << std::endl;
+	std::cout << "\n\n-1 = return to Main Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+		default:
+			std::cout << "Wrong input" << std::endl;;
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			showOptionMenu();
+			break;
+		case 1:
+			showFadingSettings();
+			break;
+		case 2:
+			showOverlapSettings();
+			break;
+		case 3:
+			showStepSettings();
+			break;
+		case 4:
+			showDistanceSettings();
+			break;
+		case -1:
+			showMainMenu();
+			break;
+	}
+
+	/*
 	case 2:
 		this->isStepImage = !this->isStepImage;
 		this->isStepImage ?
@@ -286,8 +218,258 @@ void MenuManager::showOptionMenu()
 		break;
 
 	}
+	*/
+	std::cin.ignore(INT_MAX, '\n');
 
 	showOptionMenu();
+}
+
+void MenuManager::showImageMenu()
+{
+	int choice = 0;
+	std::string strInput = "";
+
+	std::cout << "Image Menu" << std::endl;
+	std::cout << "1 = image directory" << std::endl;
+	std::cout << "2 = output directory" << std::endl;
+	std::cout << "3 = output filename (with extension)" << std::endl;
+	std::cout << "\n\n-1 = Return to main menu" << std::endl;
+
+	std::cin >> choice;
+
+
+	switch (choice)
+	{
+	default:
+		std::cout << "Wrong input" << std::endl;;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		showImageMenu();
+		break;
+	case 1:
+		this->imageDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
+		std::cout << "Chosen path: " << this->imageDirectory << std::endl;
+		break;
+	case 2:
+		this->outputDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\";
+		std::cout << "Chosen path: " << this->outputDirectory << std::endl;
+		break;
+	case 3:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "Enter chosen name." << std::endl;
+		std::cin >> strInput;
+		this->outputName = strInput;
+		break;
+	case -1:
+		showMainMenu();
+		break;
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showImageMenu();
+
+}
+
+void MenuManager::showVideoMenu()
+{
+	int choice = 0;
+	std::string strInput = "";
+
+	std::cout << "Video Menu" << std::endl;
+	std::cout << "1 = video directory" << std::endl;
+	std::cout << "2 = video name (with extension)" << std::endl;
+	std::cout << "3 = output directory" << std::endl;
+	std::cout << "4 = output filename (with extension)" << std::endl;
+	std::cout << "5 = set picture frequency per frame" << std::endl;
+
+	std::cout << "\n\n-1 = Return to main menu" << std::endl;
+
+	std::cin >> choice;
+
+
+	switch (choice)
+	{
+	default:
+		std::cout << "Wrong input" << std::endl;;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		showVideoMenu();
+		break;
+	case 1:
+		this->videoDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
+		std::cout << "Chosen path: " << this->imageDirectory << std::endl;
+		break;
+	case 2:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "Enter Video name (with extension)." << std::endl;
+		std::cin >> strInput;
+		this->outputName = strInput;
+		break;
+	case 3:
+		this->outputDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\";
+		std::cout << "Chosen path: " << this->outputDirectory << std::endl;
+		break;
+	case 4:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "Enter chosen name. (with extension)" << std::endl;
+		std::cin >> strInput;
+		this->outputName = strInput;
+		break;
+	case -1:
+		showMainMenu();
+		break;
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showVideoMenu();
+}
+
+void MenuManager::showFadingSettings()
+{
+	int choice = 0;
+
+	std::cout << "Fading Menu" << std::endl;
+	std::cout << "1 = set to Opaque\t*default" << std::endl;
+	std::cout << "2 = set each frame from transparant to opaque" << std::endl;
+	std::cout << "3 = set each frame from opaque to transparant" << std::endl;
+	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+		default:
+			std::cout << "Wrong input" << std::endl;;
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			showFadingSettings();
+			break;
+		case 1:
+			fade = Opaque;
+			break;
+		case 2:
+			fade = TransparentToOpaque;
+			break;
+		case 3:
+			fade = OpaqueToTransparent;
+			break;
+		case -1:
+			showOptionMenu();
+			break;
+	}
+	std::cin.ignore(INT_MAX, '\n');
+	showFadingSettings();
+}
+
+void MenuManager::showOverlapSettings()
+{
+	int choice = 0;
+
+	std::cout << "Overlap Menu" << std::endl;
+	std::cout << "1 = enable/disable overlap\t*disabled by default" << std::endl;
+	std::cout << "2 = set max overlap" << std::endl;
+	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+		default:
+			std::cout << "Wrong input" << std::endl;;
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			showOverlapSettings();
+			break;
+		case 1:		
+			isOverlapImage != isOverlapImage;
+			break;
+		case 2:
+			std::cout << "Enter maximum overlap" << std::endl;
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			std::cin >> this->overlap;
+			break;
+		case -1:
+			showMainMenu();
+			break;
+
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showOverlapSettings();
+}
+
+void MenuManager::showDistanceSettings()
+{
+
+	int choice = 0;
+
+	std::cout << "Distance Menu" << std::endl;
+	std::cout << "1 = enable/disable minimal distance\t*disabled by default" << std::endl;
+	std::cout << "2 = set max overlap" << std::endl;
+	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+	default:
+		std::cout << "Wrong input" << std::endl;;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		showDistanceSettings();
+		break;
+	case 1:
+		isDistanceImage != isDistanceImage;
+		break;
+	case 2:
+		std::cout << "Enter minimum distance" << std::endl;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cin >> this->minDistance;
+		break;
+	case -1:
+		showMainMenu();
+		break;
+
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showDistanceSettings();
+}
+
+void MenuManager::showStepSettings()
+{
+
+	int choice = 0;
+
+	std::cout << "Step distance Menu" << std::endl;
+	std::cout << "1 = enable/disable minimal step\t*disabled by default" << std::endl;
+	std::cout << "2 = set step distance" << std::endl;
+	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+	default:
+		std::cout << "Wrong input" << std::endl;;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		showStepSettings();
+		break;
+	case 1:
+		isStepImage != isStepImage;
+		break;
+	case 2:
+		std::cout << "Enter step distance" << std::endl;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cin >> this->stepDistance;
+		break;
+	case -1:
+		showMainMenu();
+		break;
+
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showStepSettings();
 }
 
 std::string MenuManager::BrowseFolder(std::string saved_path)
@@ -333,4 +515,50 @@ int MenuManager::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM 
 	}
 
 	return 0;
+}
+
+void MenuManager::startImageProcess()
+{
+	std::vector<Image> images;
+	if (AlgoImg::AlgoImages::checkVideoInPath(this->videoDirectory, this->videoName)) {
+		AlgoImg::AlgoImages::getVideoFrame(this->outputDirectory, this->videoDirectory + "\\" + this->videoName, 5);
+		images = AlgoImg::AlgoImages::getAllImagesInPath(this->outputDirectory);
+	}
+	else {
+		if (this->videoDirectory != "" || this->videoName != "") {
+			std::cout << "could not read video" << std::endl;
+			this->videoDirectory = "";
+			this->videoName = "";
+			return;
+		}
+		else if (this->imageDirectory == "" || this->outputDirectory == "")
+		{
+			std::cout << "please inform image directory and output directory first" << std::endl;
+			return;
+		}
+		images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
+	}
+
+
+	if (!AlgoImg::AlgoImages::checkSizeImages(images))
+	{
+		std::cout << "images are not the same size" << std::endl;
+		return;
+	}
+	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	AlgoImg::AlgoImages::getBackground(images, background);
+	Image image_final(background);
+	AlgoImg::AlgoImages::writeImage(background, this->outputDirectory, this->outputName); //TODO not putting in the selected folder
+	for (int i = 0; i < images.size(); i++)
+	{
+		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+		AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 50.0f);
+		AlgoImg::AlgoImages::writeImage(mask, this->outputDirectory, "mask" + std::to_string(i) + ".png");
+		Image cleaned_mask(mask);
+		//AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
+		AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
+		//AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
+	}
+	AlgoImg::AlgoImages::writeImage(image_final, this->outputDirectory, "image_final.png");
 }

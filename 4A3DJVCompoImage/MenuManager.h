@@ -8,6 +8,9 @@
 #include "AlgoImages.h"
 #include "src/Image.h"
 
+enum FadingState {
+	Opaque, TransparentToOpaque, OpaqueToTransparent
+};
 
 class MenuManager
 {
@@ -18,12 +21,26 @@ class MenuManager
 		std::string videoDirectory;
 		std::string videoName;
 		bool isVideo;
-		bool isFading;
 		bool isStepImage;
+		bool isOverlapImage;
 		bool isDistanceImage;
+		
+		FadingState fade = Opaque;
 		int overlap;
 		int stepDistance;
 		int minDistance;
+		//display menus
+		void showOptionMenu();
+		void showImageMenu();
+		void showVideoMenu();
+		void showFadingSettings();
+		void showOverlapSettings();
+		void showDistanceSettings();
+		void showStepSettings();
+
+		std::string BrowseFolder(std::string saved_path);
+		static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+		void startImageProcess();
 	public:
 		//single instance of menuManager
 		static MenuManager& getInstance();
@@ -31,7 +48,7 @@ class MenuManager
 		std::string getImageDirectory() const;
 		std::string getOutputDirectory() const;
 		std::string getOutputName() const;
-		bool getIsFading() const;
+		FadingState getFade() const;
 		bool getIsStepImage() const;
 		bool getIsDistanceImage() const;
 		int getOverlap() const;
@@ -41,15 +58,15 @@ class MenuManager
 		void setImageDirectory(std::string directory);
 		void setOutputDirectory(std::string directory);
 		void setOutputName(std::string name);
-		void setIsFading(bool isFading);
+		void setFade(FadingState fade);
 		void setIsStepImage(bool isStepImage);
 		void setIsDistanceImage(bool isDistanceImage);
 		void setOverlap(int val);
 		void setStepDistance(int val);
 		void setMinDistance(int val);
-		//display menus
+	
 		void showMainMenu();
-		void showOptionMenu();
-		std::string BrowseFolder(std::string saved_path);
-		static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+
+
+	
 };
