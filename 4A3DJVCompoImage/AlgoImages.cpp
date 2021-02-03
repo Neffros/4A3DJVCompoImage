@@ -140,9 +140,9 @@ namespace AlgoImg
 	}
 
 
-	void AlgoImages::writeImage(Image& image, std::string filename)
+	void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
 	{
-		std::cout << "write ? " << image.write(filename.c_str());
+		std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
 	}
 
 
@@ -248,8 +248,6 @@ namespace AlgoImg
 				minY = imgHeigth;
 			else if (imgHeigth > maxY)
 				maxY = imgHeigth;
-
-
 		}
 		std::cout << "X: " << minX << " - " << maxX << std::endl;
 		std::cout << "Y: " << minY << " - " << maxY << std::endl;

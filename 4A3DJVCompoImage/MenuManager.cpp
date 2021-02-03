@@ -134,7 +134,7 @@ void MenuManager::showMainMenu()
             std::cout << "Chosen path: " << this->imageDirectory << std::endl;
             break;
         case 2:
-            this->outputDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage");
+            this->outputDirectory = BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\";
             std::cout << "Chosen path: " << this->outputDirectory << std::endl;
             break;
         case 3:
@@ -177,18 +177,18 @@ void MenuManager::showMainMenu()
                 Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 				AlgoImg::AlgoImages::getBackground(images, background);
 				Image image_final(background);
-				AlgoImg::AlgoImages::writeImage(background, this->outputDirectory + this->outputName); //TODO not putting in the selected folder
+				AlgoImg::AlgoImages::writeImage(background, this->outputDirectory,this->outputName); //TODO not putting in the selected folder
 				for (int i = 0; i < images.size(); i++)
 				{
 					Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-					AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 20.0f);
-					AlgoImg::AlgoImages::writeImage(mask, "mask" + std::to_string(i) + ".png");
+					AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 50.0f);
+					AlgoImg::AlgoImages::writeImage(mask, this->outputDirectory, "mask" + std::to_string(i) + ".png");
 					Image cleaned_mask(mask);
-					AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
-					AlgoImg::AlgoImages::writeImage(cleaned_mask, "cleaned_mask" + std::to_string(i) + ".png");
-					AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
+					//AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
+					AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
+					//AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
 				}
-				AlgoImg::AlgoImages::writeImage(image_final, "image_final.png");
+				AlgoImg::AlgoImages::writeImage(image_final, this->outputDirectory,"image_final.png");
                 break;
             }
         case 6: {

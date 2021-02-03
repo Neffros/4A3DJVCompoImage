@@ -56,21 +56,26 @@ bool Image::read(const char* filename) {
 	return data != NULL;
 }
 
-bool Image::write(const char* filename) {
+bool Image::write(const char* directory, const char* filename) {
 	Extension ext = getExtension(filename);
+	const int nb = strlen(directory) + strlen(filename);
+	char res[200];
+	strcpy_s(res, directory);
+	strcat_s(res, filename);
+	
 	int ok;
 	switch (ext) {
 	case PNG:
-		ok = stbi_write_png(filename, width, height, channels, data, width * channels);
+		ok = stbi_write_png(res, width, height, channels, data, width * channels);
 		break;
 	case BMP:
-		ok = stbi_write_bmp(filename, width, height, channels, data);
+		ok = stbi_write_bmp(res, width, height, channels, data);
 		break;
 	case JPG:
-		ok = stbi_write_jpg(filename, width, height, channels, data, 100);
+		ok = stbi_write_jpg(res, width, height, channels, data, 100);
 		break;
 	case TGA:
-		ok = stbi_write_tga(filename, width, height, channels, data);
+		ok = stbi_write_tga(res, width, height, channels, data);
 		break;
 	}
 	return ok != 0;

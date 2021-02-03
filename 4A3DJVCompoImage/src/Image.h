@@ -19,7 +19,7 @@ class Image {
 		~Image();
 
 		bool read(const char* filename);
-		bool write(const char* filename);
+		bool write(const char* directory, const char* filename);
 
 		int getWidth() const;
 		int getHeight() const;
