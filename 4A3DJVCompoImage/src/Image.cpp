@@ -42,6 +42,7 @@ Image::Image(const int w, const int h, const int channels) : width(w), height(h)
 	data = new uint8_t[size];
 }
 
+
 Image::Image(const Image& img) : Image(img.width, img.height, img.channels) {
 	memcpy(data, img.data, size);
 }
@@ -118,6 +119,8 @@ void Image::setPixel(int x, int y, uint8_t* val)
 {
 	memcpy(data + (y * width + x) * channels, val, channels);
 }
+
+
 
 
 Image& Image::grayscale()

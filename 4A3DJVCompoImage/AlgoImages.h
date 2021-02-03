@@ -1,6 +1,8 @@
 #pragma once
 #include "src/Image.h"
 #include <opencv2/opencv.hpp>
+#include <deque> 
+
 using namespace cv;
 
 namespace AlgoImg
@@ -19,5 +21,13 @@ namespace AlgoImg
 		static void binaryMerge(Image* mask, Image* image1, Image* image2);
 		static void getVideoFrame(std::string outputPath, std::string filename, int step);
 		static bool checkVideoInPath(std::string path, std::string videoName);
+		/// <summary>
+		/// Return eights white neigbhors of a white pixel. 
+		/// </summary>
+		static std::vector<std::pair<int, int>> getConnexeNeighborsPixel(Image& image, int x, int y);
+		static int getConnexeComposanteSize(Image& image, int x, int y);		
+		static Image removeConnexeComposante(Image& image, int x, int y);
+		static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
+
 	};
 }

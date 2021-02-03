@@ -44,6 +44,101 @@ namespace AlgoImg
 		return false;
 	}
 
+	std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
+	{
+		// eight-connexity neighbors x and y coordinates
+		int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
+		std::vector<std::pair<int, int>> neigbhors;
+		for (int i = 0; i < 16; i++)
+		{
+			int x_offset = x + eight[i];
+			int y_offset = y + eight[i+1];
+			if (x_offset >= 0 && y_offset >= 0)
+			{
+				if (x_offset < image.getWidth() && y_offset < image.getHeight())
+				{
+					uint8_t* p = image.getPixel(x_offset, y_offset);
+					if (p[0] == 255)
+					{
+						neigbhors.push_back(std::make_pair(x_offset, y_offset));
+					}
+				}
+			}
+		}
+		return neigbhors;
+	}
+
+	int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
+	{
+		std::deque<std::pair<int, int>> q;
+		q.push_back(std::make_pair(x, y));
+		Image copy(image);
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+		copy.setPixel(x, y, pixBlack);
+		std::vector<std::pair<int, int>> res;
+		while(!q.empty())
+		{
+			std::pair<int, int> current = q.back();
+			res.push_back(current);
+			q.pop_back(); // remove it because back() does not do it
+			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+			for (int i = 0; i < neigbhors.size(); i++)
+			{
+				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+				q.push_front(neigbhors[i]);
+			}
+
+		}
+		return res.size();
+	}
+
+	Image AlgoImages::removeConnexeComposante(Image& image, int x, int y)
+	{
+		std::deque<std::pair<int, int>> q;
+		q.push_back(std::make_pair(x, y));
+		Image copy(image);
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+
+		copy.setPixel(x, y, pixBlack);
+		std::vector<std::pair<int, int>> res;
+		while (!q.empty())
+		{
+			std::pair<int, int> current = q.back();
+			res.push_back(current);
+			q.pop_back(); // remove it because back() does not do it
+			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+			for (int i = 0; i < neigbhors.size(); i++)
+			{
+				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+				q.push_front(neigbhors[i]);
+			}
+
+		}
+		return copy;
+
+
+	}
+
+	void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
+	{
+		Image copy(image);
+		int w = copy.getWidth();
+		int h = copy.getHeight();
+		for(int x = 0; x < w; x++)
+		{
+			for (int y = 0; y <h; y++)
+			{
+				if(copy.getPixel(x,y)[0] == 255)
+				{
+					if( getConnexeComposanteSize(copy, x, y) < threshold)
+					{
+						image = removeConnexeComposante(image, x, y);
+					}
+				}
+			}
+		}
+	}
+
 
 	void AlgoImages::writeImage(Image& image, std::string filename)
 	{
@@ -93,7 +188,7 @@ namespace AlgoImg
 				{
 					image1->setPixel(x, y, pix2);
 				}
-				
+
 			}
 		}
 	}
