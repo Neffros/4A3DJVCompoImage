@@ -139,19 +139,7 @@ namespace AlgoImg
 		}
 	}
 
-	void AlgoImages::setAlphaImage(Image& image, int alpha)
-	{
-		if (image.getChannels() != 4) throw("no alpha channel detected");
-		for (int x = 0; x < image.getWidth(); x++)
-		{
-			for (int y = 0; y < image.getHeight(); y++)
-			{
-				uint8_t* pix1 = image.getPixel(x, y);
-				pix1[3] = alpha;
-				image.setPixel(x, y, pix1);
-			}
-		}
-	}
+
 
 
 	void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
@@ -188,7 +176,7 @@ namespace AlgoImg
 		}
 	}
 
-	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
+	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2, int alpha)
 	{
 
 		for (int x = 0; x < image1->getWidth(); x++)
@@ -200,6 +188,11 @@ namespace AlgoImg
 				uint8_t* pixM = mask->getPixel(x, y);
 				if (pixM[0] != 0)
 				{
+					// trouver la bonne méthode blend ici
+					pix2[0] *= pix1[0];
+					pix2[1] *= pix1[1];
+					pix2[2] *= pix1[2];
+					
 					image1->setPixel(x, y, pix2);
 				}
 

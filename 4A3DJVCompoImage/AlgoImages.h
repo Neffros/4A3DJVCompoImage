@@ -17,7 +17,7 @@ namespace AlgoImg
 		static void getBackground(std::vector<Image> images, Image& res);
 		static bool checkSizeImages(std::vector<Image> images);
 		static void getImageMask(Image targetImage, Image background, Image& mask, float maxDiff);
-		static void binaryMerge(Image* mask, Image* image1, Image* image2);
+		static void binaryMerge(Image* mask, Image* image1, Image* image2, int alpha);
 		static void getVideoFrame(std::string outputPath, std::string filename, int step);
 		static bool checkVideoInPath(std::string path, std::string videoName);
 		/// <summary>
@@ -27,7 +27,6 @@ namespace AlgoImg
 		static int getConnexeComposanteSize(Image& image, int x, int y);		
 		static Image removeConnexeComposante(Image& image, int x, int y);
 		static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
-		static void setAlphaImage(Image& image, int alpha);
 
 	};
 }

@@ -552,13 +552,14 @@ void MenuManager::startImageProcess()
 	AlgoImg::AlgoImages::writeImage(background, this->outputDirectory, this->outputName); //TODO not putting in the selected folder
 	for (int i = 0; i < images.size(); i++)
 	{
+		
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 50.0f);
 		AlgoImg::AlgoImages::writeImage(mask, this->outputDirectory, "mask" + std::to_string(i) + ".png");
-		Image cleaned_mask(mask);
+		//Image cleaned_mask(mask);
 		//AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
-		AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
-		//AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
+		//AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
+		AlgoImg::AlgoImages::binaryMerge(&mask, &image_final, &images[i], (255-i)%255);
 	}
 	AlgoImg::AlgoImages::writeImage(image_final, this->outputDirectory, "image_final.png");
 }
