@@ -2,6 +2,7 @@
 #include "src/Image.h"
 #include <opencv2/opencv.hpp>
 #include <deque> 
+#include "Settings.h"
 
 using namespace cv;
 
@@ -11,6 +12,8 @@ namespace AlgoImg
 	{
 	private:
 		std::vector<Image> images;
+		Settings* settings = Settings::getInstance();;
+
 	public:
 		static std::vector<Image> getAllImagesInPath(std::string path);
 		static void writeImage(Image& image, std::string directory, std::string filename);
@@ -20,6 +23,11 @@ namespace AlgoImg
 		static void binaryMerge(Image* mask, Image* image1, Image* image2);
 		static void getVideoFrame(std::string outputPath, std::string filename, int step);
 		static bool checkVideoInPath(std::string path, std::string videoName);
+		static std::vector<Image> selectUsedImages(std::vector<Image> images);
+		static std::vector<Image> selectionFromOverlap(std::vector<Image> images);
+		static std::vector<Image> selectionFromStep(std::vector<Image> images);
+		static std::vector<Image> selectionFromDistance(std::vector<Image> images);
+		static void StartImageProcess();
 		/// <summary>
 		/// Return eights white neigbhors of a white pixel. 
 		/// </summary>
