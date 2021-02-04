@@ -27,6 +27,7 @@ namespace AlgoImg
 		static int getConnexeComposanteSize(Image& image, int x, int y);		
 		static Image removeConnexeComposante(Image& image, int x, int y);
 		static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
+		static void setAlphaImage(Image& image, int alpha);
 
 	};
 }

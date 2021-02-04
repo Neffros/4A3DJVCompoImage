@@ -52,7 +52,7 @@ namespace AlgoImg
 		for (int i = 0; i < 16; i++)
 		{
 			int x_offset = x + eight[i];
-			int y_offset = y + eight[i+1];
+			int y_offset = y + eight[i + 1];
 			if (x_offset >= 0 && y_offset >= 0)
 			{
 				if (x_offset < image.getWidth() && y_offset < image.getHeight())
@@ -76,7 +76,7 @@ namespace AlgoImg
 		uint8_t pixBlack[3] = { 0 , 0 ,0 };
 		copy.setPixel(x, y, pixBlack);
 		std::vector<std::pair<int, int>> res;
-		while(!q.empty())
+		while (!q.empty())
 		{
 			std::pair<int, int> current = q.back();
 			res.push_back(current);
@@ -124,17 +124,31 @@ namespace AlgoImg
 		Image copy(image);
 		int w = copy.getWidth();
 		int h = copy.getHeight();
-		for(int x = 0; x < w; x++)
+		for (int x = 0; x < w; x++)
 		{
-			for (int y = 0; y <h; y++)
+			for (int y = 0; y < h; y++)
 			{
-				if(copy.getPixel(x,y)[0] == 255)
+				if (copy.getPixel(x, y)[0] == 255)
 				{
-					if( getConnexeComposanteSize(copy, x, y) < threshold)
+					if (getConnexeComposanteSize(copy, x, y) < threshold)
 					{
 						image = removeConnexeComposante(image, x, y);
 					}
 				}
+			}
+		}
+	}
+
+	void AlgoImages::setAlphaImage(Image& image, int alpha)
+	{
+		if (image.getChannels() != 4) throw("no alpha channel detected");
+		for (int x = 0; x < image.getWidth(); x++)
+		{
+			for (int y = 0; y < image.getHeight(); y++)
+			{
+				uint8_t* pix1 = image.getPixel(x, y);
+				pix1[3] = alpha;
+				image.setPixel(x, y, pix1);
 			}
 		}
 	}
