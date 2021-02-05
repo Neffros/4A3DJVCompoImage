@@ -119,7 +119,9 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 		int y_offset = y + eight[i+1];
 		if (x_offset >= 0 && y_offset >= 0)
 		{
-			if (x_offset < image.getWidth() && y_offset < image.getHeight())
+			int x_offset = x + eight[i];
+			int y_offset = y + eight[i + 1];
+			if (x_offset >= 0 && y_offset >= 0)
 			{
 				uint8_t* p = image.getPixel(x_offset, y_offset);
 				if (p[0] == 255)
@@ -142,11 +144,13 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	std::vector<std::pair<int, int>> res;
 	while(!q.empty())
 	{
-		std::pair<int, int> current = q.back();
-		res.push_back(current);
-		q.pop_back(); // remove it because back() does not do it
-		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
-		for (int i = 0; i < neigbhors.size(); i++)
+		std::deque<std::pair<int, int>> q;
+		q.push_back(std::make_pair(x, y));
+		Image copy(image);
+		uint8_t pixBlack[3] = { 0 , 0 ,0 };
+		copy.setPixel(x, y, pixBlack);
+		std::vector<std::pair<int, int>> res;
+		while (!q.empty())
 		{
 			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
 			q.push_front(neigbhors[i]);
@@ -190,13 +194,19 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 	int h = copy.getHeight();
 	for(int x = 0; x < w; x++)
 	{
-		for (int y = 0; y <h; y++)
+		Image copy(image);
+		int w = copy.getWidth();
+		int h = copy.getHeight();
+		for (int x = 0; x < w; x++)
 		{
-			if(copy.getPixel(x,y)[0] == 255)
+			for (int y = 0; y < h; y++)
 			{
-				if( getConnexeComposanteSize(copy, x, y) < threshold)
+				if (copy.getPixel(x, y)[0] == 255)
 				{
-					image = removeConnexeComposante(image, x, y);
+					if (getConnexeComposanteSize(copy, x, y) < threshold)
+					{
+						image = removeConnexeComposante(image, x, y);
+					}
 				}
 			}
 		}
@@ -204,10 +214,12 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 }
 
 
-void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
-{
-	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
-}
+
+
+	void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
+	{
+		std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
+	}
 
 
 void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
@@ -238,10 +250,7 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 	}
 }
 
-void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
-{
-
-	for (int x = 0; x < image1->getWidth(); x++)
+	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2, int alpha)
 	{
 		for (int y = 0; y < image1->getHeight(); y++)
 		{
@@ -250,8 +259,18 @@ void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
 			uint8_t* pixM = mask->getPixel(x, y);
 			if (pixM[0] != 0)
 			{
-				image1->setPixel(x, y, pix2);
-			}
+				uint8_t* pix1 = image1->getPixel(x, y);
+				uint8_t* pix2 = image2->getPixel(x, y);
+				uint8_t* pixM = mask->getPixel(x, y);
+				if (pixM[0] != 0)
+				{
+					// trouver la bonne m�thode blend ici
+					pix2[0] *= pix1[0];
+					pix2[1] *= pix1[1];
+					pix2[2] *= pix1[2];
+					
+					image1->setPixel(x, y, pix2);
+				}
 
 		}
 	}
