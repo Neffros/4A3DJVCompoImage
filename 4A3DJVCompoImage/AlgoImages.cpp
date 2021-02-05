@@ -43,6 +43,7 @@ bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
 
 	return false;
 }
+/*
 std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Settings* settings)
 {
 	if (settings->getIsOverlapImage())
@@ -53,11 +54,32 @@ std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Sett
 		selectionFromDistance(images, settings);
 
 	return std::vector<Image>();
-}
-std::vector<Image> AlgoImages::selectionFromOverlap(std::vector<Image>& images, Settings* settings)
+}*/
+
+bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, float maxOverlapPercent)
 {
-	return std::vector<Image>();
+	int overlap = 0;
+	int nbPixTarget = 0;
+	for (int x = 0; x < maskFinal.getWidth(); x++)
+	{
+		for (int y = 0; y < maskFinal.getHeight(); y++)
+		{
+			uint8_t* pix1 = maskFinal.getPixel(x, y);
+			uint8_t* pix2 = targetMask.getPixel(x, y);
+			if (pix2[0] == 255)
+			{
+				nbPixTarget++;
+				if (pix1[0] == 255)
+				{
+					overlap++;
+				}
+			}
+		}
+	}
+
+	return ((overlap * 100) / nbPixTarget > maxOverlapPercent);
 }
+
 std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
 {
 	return std::vector<Image>();
