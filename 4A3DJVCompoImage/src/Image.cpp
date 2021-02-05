@@ -51,9 +51,7 @@ Image::~Image() {
 }
 
 bool Image::read(const char* filename) {
-	int channTMP = 0;
-	data = stbi_load(filename, &width, &height, &channTMP, STBI_rgb_alpha);
-	channels = STBI_rgb_alpha;
+	data = stbi_load(filename, &width, &height, &channels, 0);
 	//std::cout << filename << " nb channel:" << channels << std::endl;
 	return data != NULL;
 }

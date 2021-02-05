@@ -109,15 +109,15 @@ void AlgoImages::StartImageProcess()
 
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
-	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
+	settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-	//Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-	//getBackground(images, background);
+	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
 	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
