@@ -102,9 +102,9 @@ void AlgoImages::StartImageProcess()
 		Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
 		writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
-		binaryMerge(&cleaned_mask, &image_final, &images[i]);
+		binaryMerge(&mask, &image_final, &images[i], (255 - i) % 255);
 	}
-	writeImage(image_final, settings->getOutputDirectory(), "image_final.png");
+	writeImage(image_final, settings->getOutputDirectory(), settings->getOutputName());
 }
 
 
@@ -116,12 +116,10 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 	for (int i = 0; i < 16; i++)
 	{
 		int x_offset = x + eight[i];
-		int y_offset = y + eight[i+1];
+		int y_offset = y + eight[i + 1];
 		if (x_offset >= 0 && y_offset >= 0)
 		{
-			int x_offset = x + eight[i];
-			int y_offset = y + eight[i + 1];
-			if (x_offset >= 0 && y_offset >= 0)
+			if (x_offset < image.getWidth() && y_offset < image.getHeight())
 			{
 				uint8_t* p = image.getPixel(x_offset, y_offset);
 				if (p[0] == 255)
@@ -142,15 +140,13 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	uint8_t pixBlack[3] = { 0 , 0 ,0 };
 	copy.setPixel(x, y, pixBlack);
 	std::vector<std::pair<int, int>> res;
-	while(!q.empty())
+	while (!q.empty())
 	{
-		std::deque<std::pair<int, int>> q;
-		q.push_back(std::make_pair(x, y));
-		Image copy(image);
-		uint8_t pixBlack[3] = { 0 , 0 ,0 };
-		copy.setPixel(x, y, pixBlack);
-		std::vector<std::pair<int, int>> res;
-		while (!q.empty())
+		std::pair<int, int> current = q.back();
+		res.push_back(current);
+		q.pop_back(); // remove it because back() does not do it
+		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+		for (int i = 0; i < neigbhors.size(); i++)
 		{
 			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
 			q.push_front(neigbhors[i]);
@@ -250,9 +246,11 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 	}
 }
 
-	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2, int alpha)
+void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2, int alpha)
+{
+	for (int y = 0; y < image1->getHeight(); y++)
 	{
-		for (int y = 0; y < image1->getHeight(); y++)
+		for (int x = 0; x < image1->getWidth(); x++)
 		{
 			uint8_t* pix1 = image1->getPixel(x, y);
 			uint8_t* pix2 = image2->getPixel(x, y);
@@ -268,10 +266,11 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 					pix2[0] *= pix1[0];
 					pix2[1] *= pix1[1];
 					pix2[2] *= pix1[2];
-					
+
 					image1->setPixel(x, y, pix2);
 				}
 
+			}
 		}
 	}
 }
