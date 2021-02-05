@@ -23,7 +23,7 @@ public:
 	static void getVideoFrame(std::string outputPath, std::string filename, int step);
 	static bool checkVideoInPath(std::string path, std::string videoName);
 	static std::vector<Image> selectUsedImages(std::vector<Image>& images, Settings* settings);
-	static std::vector<Image> selectionFromOverlap(std::vector<Image>& images, Settings* settings);
+	static bool selectionFromOverlap(Image& maskFinal, Image& targetMask, float maxOverlapPercent);
 	static std::vector<Image> selectionFromStep(std::vector<Image>& images, Settings* settings);
 	static std::vector<Image> selectionFromDistance(std::vector<Image>& images, Settings* settings);
 	static void StartImageProcess();

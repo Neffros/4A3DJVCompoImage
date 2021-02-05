@@ -264,7 +264,7 @@ void MenuManager::showOverlapSettings()
 			settings->setIsOverlapImage(!settings->getIsOverlapImage());
 			break;
 		case 2:
-			std::cout << "Enter maximum overlap" << std::endl;
+			std::cout << "Enter maximum overlap (percentage value without writting %)" << std::endl;
 			std::cin.clear();
 			std::cin.ignore(INT_MAX, '\n');
 			std::cin >> choice; //might break?

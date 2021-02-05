@@ -77,7 +77,7 @@ bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, float
 		}
 	}
 
-	return ((overlap * 100) / nbPixTarget > maxOverlapPercent);
+	return ((overlap * 100) / nbPixTarget <= maxOverlapPercent);
 }
 
 std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
@@ -131,15 +131,15 @@ void AlgoImages::StartImageProcess()
 
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
-	settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
+	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-	getBackground(images, background);
+	Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	//Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	//getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
 	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
@@ -158,21 +158,33 @@ void AlgoImages::StartImageProcess()
 		alphaIncrement = -1.0f / float(images.size()); //-std::round(images.size() * 1000 / 255);
 	}
 
+	Image maskFinal(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	getImageMask(background, background, maskFinal, settings->getMaxMaskDiff());
+
 	for (int i = 0; i < images.size(); i++)
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
-		writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
-		Image cleaned_mask(mask);
-		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
-		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
-		std::cout << "alpha is: " << alpha << std::endl;
+		if (!selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
+		{
+			std::cout << "this cannot continue" << std::endl;
+			continue;
+		}
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
 		if (alpha + alphaIncrement > 1)
 			alpha = 1;
 		else if (alpha + alphaIncrement < 0.15f)
 			alpha = 0.15f;
+		getImageMask(image_final, background, maskFinal, settings->getMaxMaskDiff());
+
+		writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
+		//writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
+		//Image cleaned_mask(mask);
+		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
+		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
+		//std::cout << "alpha is: " << alpha << std::endl;
+
 	}
 	writeImage(image_final, settings->getOutputDirectory(), settings->getOutputName());
 }
