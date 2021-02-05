@@ -38,7 +38,7 @@ void MenuManager::showMainMenu()
 		showOptionMenu();
 		break;
 	case 4:
-		AlgoImg::AlgoImages::StartImageProcess();
+		AlgoImages::StartImageProcess();
 		break;
 	case -1:
 		std::exit(0);
@@ -53,12 +53,13 @@ void MenuManager::showMainMenu()
 void MenuManager::showOptionMenu()
 {
 	int choice = 0;
-
+	float val = 0.0f;
 	std::cout << "Options Menu" << std::endl;
 	std::cout << "1 = fading settings" << std::endl;
 	std::cout << "2 = overlap settings" << std::endl;
 	std::cout << "3 = step settings" << std::endl;
 	std::cout << "4 = minimal distance settings" << std::endl;
+	std::cout << "5 = set max mask difference" << std::endl;
 	std::cout << "\n\n-1 = return to Main Menu" << std::endl;
 	std::cin >> choice;
 	switch (choice)
@@ -81,6 +82,13 @@ void MenuManager::showOptionMenu()
 		case 4:
 			showDistanceSettings();
 			break;
+		case 5:
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			std::cout << "set max mask difference value (float)" << std::endl;
+			std::cin >> val;
+			settings->setMaxMaskDiff(val);
+
 		case -1:
 			showMainMenu();
 			break;
@@ -116,7 +124,6 @@ void MenuManager::showImageMenu()
 	case 1:
 		settings->setImageDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage"));
 		std::cout << "Chosen path: " << settings->getImageDirectory() << std::endl;
-		std::cout << "DEBUG INSTANCE 2 : " << settings2->getImageDirectory() << std::endl;
 		break;
 	case 2:
 		settings->setOutputDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\");
@@ -185,6 +192,13 @@ void MenuManager::showVideoMenu()
 		std::cout << "Enter chosen name. (with extension)" << std::endl;
 		std::cin >> strInput;
 		settings->setOutputName(strInput);
+		break;
+	case 5:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "set frame frequency per second" << std::endl;
+		std::cin >> choice;
+		settings->setVideoFrameFrequency(choice);
 		break;
 	case -1:
 		showMainMenu();

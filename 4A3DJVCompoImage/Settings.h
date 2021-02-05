@@ -14,6 +14,8 @@ class Settings {
 		std::string outputName = "output.PNG";
 		std::string videoDirectory;
 		std::string videoName;
+		int videoFrameFrequency = 5;
+		float maxMaskDiff = 50.0;
 		bool isStepImage;
 		bool isOverlapImage;
 		bool isDistanceImage;
@@ -22,6 +24,7 @@ class Settings {
 		int overlap;
 		int stepDistance;
 		int minDistance;
+		
 
 	protected:
 		Settings();
@@ -38,6 +41,8 @@ class Settings {
 		std::string getOutputName() const;
 		std::string getVideoDirectory() const;
 		std::string getVideoName() const;
+		float getMaxMaskDiff() const;
+		int getVideoFrameFrequency() const;
 		FadingState getFade() const;
 		bool getIsStepImage() const;
 		bool getIsOverlapImage() const;
@@ -51,6 +56,8 @@ class Settings {
 		void setOutputName(std::string name);
 		void setVideoDirectory(std::string directory);
 		void setVideoName(std::string name);
+		void setMaxMaskDiff(float val);
+		void setVideoFrameFrequency(int frame);
 		void setFade(FadingState fade);
 		void setIsStepImage(bool isStepImage);
 		void setIsOverlapImage(bool isOverlapImage);

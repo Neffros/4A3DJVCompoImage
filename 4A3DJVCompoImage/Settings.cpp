@@ -4,7 +4,7 @@ Settings* Settings::instance = 0;
 
 Settings *Settings::getInstance()
 {
-	if (instance == 0)
+	if (instance == nullptr)
 		instance = new Settings();
 	return instance;
 }
@@ -37,6 +37,10 @@ std::string Settings::getVideoName() const
 	return this->videoName;
 }
 
+int Settings::getVideoFrameFrequency() const
+{
+	return this->videoFrameFrequency;
+}
 FadingState Settings::getFade() const
 {
 	return this->fade;
@@ -55,6 +59,11 @@ bool Settings::getIsOverlapImage() const
 bool Settings::getIsDistanceImage() const
 {
 	return this->isDistanceImage;
+}
+
+float Settings::getMaxMaskDiff() const
+{
+	return this->maxMaskDiff;
 }
 
 int Settings::getOverlap() const
@@ -86,7 +95,10 @@ void Settings::setOutputName(std::string name)
 {
 	this->outputName = name;
 }
-
+void Settings::setMaxMaskDiff(float val)
+{
+	this->maxMaskDiff = val;
+}
 void Settings::setVideoDirectory(std::string directory)
 {
 	this->videoDirectory = directory;
@@ -95,6 +107,11 @@ void Settings::setVideoDirectory(std::string directory)
 void Settings::setVideoName(std::string name)
 {
 	this->videoName = name;
+}
+
+void Settings::setVideoFrameFrequency(int frame)
+{
+	this->videoFrameFrequency = frame;
 }
 
 void Settings::setFade(FadingState fadingState)

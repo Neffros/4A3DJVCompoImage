@@ -5,331 +5,346 @@
 namespace fs = std::filesystem;
 using namespace cv;
 
-namespace AlgoImg
+
+
+std::vector<Image> AlgoImages::getAllImagesInPath(std::string path)
 {
-	std::vector<Image> AlgoImages::getAllImagesInPath(std::string path)
+	std::vector<Image> images;
+	int i = 0;
+
+	for (const auto& entry : fs::directory_iterator(path))
 	{
-		std::vector<Image> images;
-		int i = 0;
+		std::string ext = entry.path().extension().string();
 
-		for (const auto& entry : fs::directory_iterator(path))
+		if (ext != ".png" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA" && ext != ".jpg")
 		{
-			std::string ext = entry.path().extension().string();
-
-			if (ext != ".png" && ext != ".jpeg" && ext != ".BMP" && ext != ".TGA" && ext != ".jpg")
-			{
-				std::cout << entry.path().string().c_str() << " is not a compatible image" << std::endl;;
-				continue;
-			}
-			Image im(entry.path().string().c_str());
-			images.push_back(im);
-			i++;
+			std::cout << entry.path().string().c_str() << " is not a compatible image" << std::endl;;
+			continue;
 		}
-		return images;
+		Image im(entry.path().string().c_str());
+		images.push_back(im);
+		i++;
 	}
+	return images;
+}
 
-	bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
-		if (path == "" || videoName == "") return false;
-		int i = 0;
-		for (const auto& entry : fs::directory_iterator(path))
-		{
-			std::cout << path + "\\" + videoName << std::endl;
-			if (path + "\\" + videoName == entry.path().string().c_str()) {
-				return true;
-			}
-
-			i++;
-		}
-
-		return false;
-	}
-
-	void AlgoImages::StartImageProcess()
+bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
+	if (path == "" || videoName == "") return false;
+	int i = 0;
+	for (const auto& entry : fs::directory_iterator(path))
 	{
-		/*std::vector<Image> images;
-		settings->getVideoDirectory();
-		if (AlgoImg::AlgoImages::checkVideoInPath(settings.getVideoDirectory(), this->videoName)) {
-			AlgoImg::AlgoImages::getVideoFrame(this->outputDirectory, this->videoDirectory + "\\" + this->videoName, 5);
-			images = AlgoImg::AlgoImages::getAllImagesInPath(this->outputDirectory);
-		}
-		else {
-			if (this->videoDirectory != "" || this->videoName != "") {
-				std::cout << "could not read video" << std::endl;
-				this->videoDirectory = "";
-				this->videoName = "";
-				return;
-			}
-			else if (this->imageDirectory == "" || this->outputDirectory == "")
-			{
-				std::cout << "please inform image directory and output directory first" << std::endl;
-				return;
-			}
-			images = AlgoImg::AlgoImages::getAllImagesInPath(imageDirectory);
-		}
-
-
-		if (!AlgoImg::AlgoImages::checkSizeImages(images))
-		{
-			std::cout << "images are not the same size" << std::endl;
-			return;
-		}
-		//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-		Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-		AlgoImg::AlgoImages::getBackground(images, background);
-		Image image_final(background);
-		AlgoImg::AlgoImages::writeImage(background, this->outputDirectory, this->outputName); //TODO not putting in the selected folder
-		for (int i = 0; i < images.size(); i++)
-		{
-			Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-			AlgoImg::AlgoImages::getImageMask(images[i], background, mask, 50.0f);
-			AlgoImg::AlgoImages::writeImage(mask, this->outputDirectory, "mask" + std::to_string(i) + ".png");
-			Image cleaned_mask(mask);
-			//AlgoImg::AlgoImages::cleanNoiseOnBinaryMask(cleaned_mask, 200);
-			AlgoImg::AlgoImages::writeImage(cleaned_mask, this->outputDirectory, "cleaned_mask" + std::to_string(i) + ".png");
-			//AlgoImg::AlgoImages::binaryMerge(&cleaned_mask, &image_final, &images[i]);
-		}
-		AlgoImg::AlgoImages::writeImage(image_final, this->outputDirectory, "image_final.png");*/
-	}
-
-	std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
-	{
-		// eight-connexity neighbors x and y coordinates
-		int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
-		std::vector<std::pair<int, int>> neigbhors;
-		for (int i = 0; i < 16; i++)
-		{
-			int x_offset = x + eight[i];
-			int y_offset = y + eight[i+1];
-			if (x_offset >= 0 && y_offset >= 0)
-			{
-				if (x_offset < image.getWidth() && y_offset < image.getHeight())
-				{
-					uint8_t* p = image.getPixel(x_offset, y_offset);
-					if (p[0] == 255)
-					{
-						neigbhors.push_back(std::make_pair(x_offset, y_offset));
-					}
-				}
-			}
-		}
-		return neigbhors;
-	}
-
-	int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
-	{
-		std::deque<std::pair<int, int>> q;
-		q.push_back(std::make_pair(x, y));
-		Image copy(image);
-		uint8_t pixBlack[3] = { 0 , 0 ,0 };
-		copy.setPixel(x, y, pixBlack);
-		std::vector<std::pair<int, int>> res;
-		while(!q.empty())
-		{
-			std::pair<int, int> current = q.back();
-			res.push_back(current);
-			q.pop_back(); // remove it because back() does not do it
-			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
-			for (int i = 0; i < neigbhors.size(); i++)
-			{
-				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
-				q.push_front(neigbhors[i]);
-			}
-
-		}
-		return res.size();
-	}
-
-	Image AlgoImages::removeConnexeComposante(Image& image, int x, int y)
-	{
-		std::deque<std::pair<int, int>> q;
-		q.push_back(std::make_pair(x, y));
-		Image copy(image);
-		uint8_t pixBlack[3] = { 0 , 0 ,0 };
-
-		copy.setPixel(x, y, pixBlack);
-		std::vector<std::pair<int, int>> res;
-		while (!q.empty())
-		{
-			std::pair<int, int> current = q.back();
-			res.push_back(current);
-			q.pop_back(); // remove it because back() does not do it
-			std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
-			for (int i = 0; i < neigbhors.size(); i++)
-			{
-				copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
-				q.push_front(neigbhors[i]);
-			}
-
-		}
-		return copy;
-
-
-	}
-
-	void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
-	{
-		Image copy(image);
-		int w = copy.getWidth();
-		int h = copy.getHeight();
-		for(int x = 0; x < w; x++)
-		{
-			for (int y = 0; y <h; y++)
-			{
-				if(copy.getPixel(x,y)[0] == 255)
-				{
-					if( getConnexeComposanteSize(copy, x, y) < threshold)
-					{
-						image = removeConnexeComposante(image, x, y);
-					}
-				}
-			}
-		}
-	}
-
-
-	void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
-	{
-		std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
-	}
-
-
-	void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
-	{
-		uint8_t pixBlack[3] = { 0 , 0 ,0 };
-		uint8_t pixWhite[3] = { 255, 255 ,255 };
-
-		for (int x = 0; x < targetImage.getWidth(); x++)
-		{
-			for (int y = 0; y < targetImage.getHeight(); y++)
-			{
-				uint8_t* pixBg = background.getPixel(x, y);
-				uint8_t* pixCur = targetImage.getPixel(x, y);
-
-				uint8_t avgBg = (pixBg[0] + pixBg[1] + pixBg[2]) / 3;
-				uint8_t avgPix = (pixCur[0] + pixCur[1] + pixCur[2]) / 3;
-
-				if (abs(avgBg - avgPix) > maxDiff)
-				{
-					mask.setPixel(x, y, pixWhite);
-				}
-				else
-				{
-					mask.setPixel(x, y, pixBlack);
-				}
-
-			}
-		}
-	}
-
-	void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
-	{
-
-		for (int x = 0; x < image1->getWidth(); x++)
-		{
-			for (int y = 0; y < image1->getHeight(); y++)
-			{
-				uint8_t* pix1 = image1->getPixel(x, y);
-				uint8_t* pix2 = image2->getPixel(x, y);
-				uint8_t* pixM = mask->getPixel(x, y);
-				if (pixM[0] != 0)
-				{
-					image1->setPixel(x, y, pix2);
-				}
-
-			}
-		}
-	}
-
-	void AlgoImages::getBackground(std::vector<Image> images, Image& res)
-	{
-		std::vector<uint8_t> pixValsR;
-		std::vector<uint8_t> pixValsG;
-		std::vector<uint8_t> pixValsB;
-		for (int x = 0; x < images[0].getWidth(); x++)
-		{
-			for (int y = 0; y < images[0].getHeight(); y++)
-			{
-				pixValsR.clear();
-				pixValsG.clear();
-				pixValsB.clear();
-				for (int imgIndex = 0; imgIndex < images.size(); imgIndex++)
-				{
-					uint8_t* pix = images[imgIndex].getPixel(x, y);
-					pixValsR.push_back(pix[0]);
-					pixValsG.push_back(pix[1]);
-					pixValsB.push_back(pix[2]);
-				}
-				std::sort(pixValsR.begin(), pixValsR.end());
-				std::sort(pixValsG.begin(), pixValsG.end());
-				std::sort(pixValsB.begin(), pixValsB.end());
-
-				uint8_t red = pixValsR[ceil(pixValsR.size() / 2)];
-				uint8_t green = pixValsG[ceil(pixValsG.size() / 2)];
-				uint8_t blue = pixValsB[ceil(pixValsB.size() / 2)];
-
-				uint8_t pixRes[3] = { red,green,blue };
-				res.setPixel(x, y, pixRes);
-
-			}
-		}
-	}
-
-
-	//Checks if all the images are same size. call this before any process to see if images are ok to use
-	bool AlgoImages::checkSizeImages(std::vector<Image> images)
-	{
-		int minX = INT_MAX;
-		int minY = INT_MAX;
-		int maxX = 0;
-		int maxY = 0;
-		for (int i = 0; i < images.size(); i++)
-		{
-			int imgWidth = images[i].getWidth();
-			int imgHeigth = images[i].getHeight();
-			if (imgWidth < minX)
-				minX = imgWidth;
-			else if (imgWidth > maxX)
-				maxX = imgWidth;
-
-			if (imgHeigth < minY)
-				minY = imgHeigth;
-			else if (imgHeigth > maxY)
-				maxY = imgHeigth;
-		}
-		std::cout << "X: " << minX << " - " << maxX << std::endl;
-		std::cout << "Y: " << minY << " - " << maxY << std::endl;
-		if (minX == maxX && minY == maxY)
+		std::cout << path + "\\" + videoName << std::endl;
+		if (path + "\\" + videoName == entry.path().string().c_str()) {
 			return true;
+		}
+
+		i++;
+	}
+
+	return false;
+}
+bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
+{
+
+	if (checkVideoInPath(settings->getVideoDirectory(), settings->getVideoName()))
+	{
+		getVideoFrame(settings->getOutputDirectory(), settings->getVideoDirectory() + "\\" + settings->getVideoName(), 
+			settings->getVideoFrameFrequency());
+		images = getAllImagesInPath(settings->getOutputDirectory());
+		return true;
+
+	}
+	if (settings->getVideoDirectory() != "" || settings->getVideoName() != "") {
+		std::cout << "could not read video" << std::endl;
+		settings->setVideoDirectory("");
+		settings->setVideoName("");
+		return false;
+	}
+	if (settings->getImageDirectory() == "" || settings->getOutputDirectory() == "")
+	{
+		std::cout << "please inform image directory and output directory first" << std::endl;
+		return false;
+	}
+	images = getAllImagesInPath(settings->getImageDirectory());
+	if(images.empty())
+	{
+		std::cout << "no images found in directory";
 		return false;
 	}
 
-	void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirectory, int step) {
-		VideoCapture vid(videoDirectory);
-		int c = 0;
-		int nbImg = 0;
-		// Check if camera opened successfully
-		if (!vid.isOpened()) {
-			std::cout << "Error opening video stream or file" << std::endl;
-			return;
-		}
+	if (!checkSizeImages(images))
+	{
+		std::cout << "images are not the same size" << std::endl;
+		return false;
+	}
+	return true;
+}
 
-		Mat frame;
-		while (1) {
 
-			// Capture frame-by-frame
-			vid >> frame;
+void AlgoImages::StartImageProcess()
+{
+	std::vector<Image> images;
+	Settings* settings = Settings::getInstance();
+	bool isValid = validateImages(settings, images);
+	if (!isValid)
+		return;
 
-			// If the frame is empty, break immediately
-			if (frame.empty())
-				break;
+	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	getBackground(images, background);
+	Image image_final(background);
+	writeImage(background, settings->getOutputDirectory(), settings->getOutputName()); //TODO not putting in the selected folder
+	for (int i = 0; i < images.size(); i++)
+	{
+		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+		getImageMask(images[i], background, mask, 50.0f);
+		writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
+		Image cleaned_mask(mask);
+		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
+		writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
+		binaryMerge(&cleaned_mask, &image_final, &images[i]);
+	}
+	writeImage(image_final, settings->getOutputDirectory(), "image_final.png");
+}
 
-			c++;
-			if (c % step == 0) {
-				imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
-				c = 0;
-				nbImg++;
+
+std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
+{
+	// eight-connexity neighbors x and y coordinates
+	int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
+	std::vector<std::pair<int, int>> neigbhors;
+	for (int i = 0; i < 16; i++)
+	{
+		int x_offset = x + eight[i];
+		int y_offset = y + eight[i+1];
+		if (x_offset >= 0 && y_offset >= 0)
+		{
+			if (x_offset < image.getWidth() && y_offset < image.getHeight())
+			{
+				uint8_t* p = image.getPixel(x_offset, y_offset);
+				if (p[0] == 255)
+				{
+					neigbhors.push_back(std::make_pair(x_offset, y_offset));
+				}
 			}
 		}
 	}
+	return neigbhors;
+}
 
+int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
+{
+	std::deque<std::pair<int, int>> q;
+	q.push_back(std::make_pair(x, y));
+	Image copy(image);
+	uint8_t pixBlack[3] = { 0 , 0 ,0 };
+	copy.setPixel(x, y, pixBlack);
+	std::vector<std::pair<int, int>> res;
+	while(!q.empty())
+	{
+		std::pair<int, int> current = q.back();
+		res.push_back(current);
+		q.pop_back(); // remove it because back() does not do it
+		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+		for (int i = 0; i < neigbhors.size(); i++)
+		{
+			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+			q.push_front(neigbhors[i]);
+		}
+
+	}
+	return res.size();
+}
+
+Image AlgoImages::removeConnexeComposante(Image& image, int x, int y)
+{
+	std::deque<std::pair<int, int>> q;
+	q.push_back(std::make_pair(x, y));
+	Image copy(image);
+	uint8_t pixBlack[3] = { 0 , 0 ,0 };
+
+	copy.setPixel(x, y, pixBlack);
+	std::vector<std::pair<int, int>> res;
+	while (!q.empty())
+	{
+		std::pair<int, int> current = q.back();
+		res.push_back(current);
+		q.pop_back(); // remove it because back() does not do it
+		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
+		for (int i = 0; i < neigbhors.size(); i++)
+		{
+			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
+			q.push_front(neigbhors[i]);
+		}
+
+	}
+	return copy;
+
+
+}
+
+void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
+{
+	Image copy(image);
+	int w = copy.getWidth();
+	int h = copy.getHeight();
+	for(int x = 0; x < w; x++)
+	{
+		for (int y = 0; y <h; y++)
+		{
+			if(copy.getPixel(x,y)[0] == 255)
+			{
+				if( getConnexeComposanteSize(copy, x, y) < threshold)
+				{
+					image = removeConnexeComposante(image, x, y);
+				}
+			}
+		}
+	}
+}
+
+
+void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
+{
+	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
+}
+
+
+void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
+{
+	uint8_t pixBlack[3] = { 0 , 0 ,0 };
+	uint8_t pixWhite[3] = { 255, 255 ,255 };
+
+	for (int x = 0; x < targetImage.getWidth(); x++)
+	{
+		for (int y = 0; y < targetImage.getHeight(); y++)
+		{
+			uint8_t* pixBg = background.getPixel(x, y);
+			uint8_t* pixCur = targetImage.getPixel(x, y);
+
+			uint8_t avgBg = (pixBg[0] + pixBg[1] + pixBg[2]) / 3;
+			uint8_t avgPix = (pixCur[0] + pixCur[1] + pixCur[2]) / 3;
+
+			if (abs(avgBg - avgPix) > maxDiff)
+			{
+				mask.setPixel(x, y, pixWhite);
+			}
+			else
+			{
+				mask.setPixel(x, y, pixBlack);
+			}
+
+		}
+	}
+}
+
+void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2)
+{
+
+	for (int x = 0; x < image1->getWidth(); x++)
+	{
+		for (int y = 0; y < image1->getHeight(); y++)
+		{
+			uint8_t* pix1 = image1->getPixel(x, y);
+			uint8_t* pix2 = image2->getPixel(x, y);
+			uint8_t* pixM = mask->getPixel(x, y);
+			if (pixM[0] != 0)
+			{
+				image1->setPixel(x, y, pix2);
+			}
+
+		}
+	}
+}
+
+void AlgoImages::getBackground(std::vector<Image> images, Image& res)
+{
+	std::vector<uint8_t> pixValsR;
+	std::vector<uint8_t> pixValsG;
+	std::vector<uint8_t> pixValsB;
+	for (int x = 0; x < images[0].getWidth(); x++)
+	{
+		for (int y = 0; y < images[0].getHeight(); y++)
+		{
+			pixValsR.clear();
+			pixValsG.clear();
+			pixValsB.clear();
+			for (int imgIndex = 0; imgIndex < images.size(); imgIndex++)
+			{
+				uint8_t* pix = images[imgIndex].getPixel(x, y);
+				pixValsR.push_back(pix[0]);
+				pixValsG.push_back(pix[1]);
+				pixValsB.push_back(pix[2]);
+			}
+			std::sort(pixValsR.begin(), pixValsR.end());
+			std::sort(pixValsG.begin(), pixValsG.end());
+			std::sort(pixValsB.begin(), pixValsB.end());
+
+			uint8_t red = pixValsR[ceil(pixValsR.size() / 2)];
+			uint8_t green = pixValsG[ceil(pixValsG.size() / 2)];
+			uint8_t blue = pixValsB[ceil(pixValsB.size() / 2)];
+
+			uint8_t pixRes[3] = { red,green,blue };
+			res.setPixel(x, y, pixRes);
+
+		}
+	}
+}
+
+
+//Checks if all the images are same size. call this before any process to see if images are ok to use
+bool AlgoImages::checkSizeImages(std::vector<Image> images)
+{
+	int minX = INT_MAX;
+	int minY = INT_MAX;
+	int maxX = 0;
+	int maxY = 0;
+	for (int i = 0; i < images.size(); i++)
+	{
+		int imgWidth = images[i].getWidth();
+		int imgHeigth = images[i].getHeight();
+		if (imgWidth < minX)
+			minX = imgWidth;
+		else if (imgWidth > maxX)
+			maxX = imgWidth;
+
+		if (imgHeigth < minY)
+			minY = imgHeigth;
+		else if (imgHeigth > maxY)
+			maxY = imgHeigth;
+	}
+	std::cout << "X: " << minX << " - " << maxX << std::endl;
+	std::cout << "Y: " << minY << " - " << maxY << std::endl;
+	if (minX == maxX && minY == maxY)
+		return true;
+	return false;
+}
+
+void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirectory, int step) {
+	VideoCapture vid(videoDirectory);
+	int c = 0;
+	int nbImg = 0;
+	// Check if camera opened successfully
+	if (!vid.isOpened()) {
+		std::cout << "Error opening video stream or file" << std::endl;
+		return;
+	}
+
+	Mat frame;
+	while (1) {
+
+		// Capture frame-by-frame
+		vid >> frame;
+
+		// If the frame is empty, break immediately
+		if (frame.empty())
+			break;
+
+		c++;
+		if (c % step == 0) {
+			imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
+			c = 0;
+			nbImg++;
+		}
+	}
 }
