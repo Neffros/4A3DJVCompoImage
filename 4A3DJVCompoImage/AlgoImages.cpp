@@ -51,7 +51,7 @@ std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Sett
 		selectionFromStep(images, settings);
 	else if (settings->getIsDistanceImage())
 		selectionFromDistance(images, settings);
-		
+
 	return std::vector<Image>();
 }
 std::vector<Image> AlgoImages::selectionFromOverlap(std::vector<Image>& images, Settings* settings)
@@ -71,7 +71,7 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 
 	if (checkVideoInPath(settings->getVideoDirectory(), settings->getVideoName()))
 	{
-		getVideoFrame(settings->getOutputDirectory(), settings->getVideoDirectory() + "\\" + settings->getVideoName(), 
+		getVideoFrame(settings->getOutputDirectory(), settings->getVideoDirectory() + "\\" + settings->getVideoName(),
 			settings->getVideoFrameFrequency());
 		images = getAllImagesInPath(settings->getOutputDirectory());
 		return true;
@@ -89,7 +89,7 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 		return false;
 	}
 	images = getAllImagesInPath(settings->getImageDirectory());
-	if(images.empty())
+	if (images.empty())
 	{
 		std::cout << "no images found in directory";
 		return false;
@@ -106,22 +106,36 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 
 void AlgoImages::StartImageProcess()
 {
-	
+
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
-	/*settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");*/
+	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-	getBackground(images, background);
+	Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	//Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	//getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
 	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
-	int alpha = 255;
+	float alpha = 1;
+	float alphaIncrement = 0;
+	if (settings->getFade() == Opaque)
+		alphaIncrement = 0;
+	else if (settings->getFade() == TransparentToOpaque)
+	{
+		alpha = 0.15f;
+		alphaIncrement = 1.0f / float(images.size());//std::round(images.size() * (100 / 255)/100);
+	}
+	else if (settings->getFade() == OpaqueToTransparent)
+	{
+		alpha = 1.0f;
+		alphaIncrement = -1.0f / float(images.size()); //-std::round(images.size() * 1000 / 255);
+	}
+
 	for (int i = 0; i < images.size(); i++)
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
@@ -130,8 +144,13 @@ void AlgoImages::StartImageProcess()
 		Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
 		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
+		std::cout << "alpha is: " << alpha << std::endl;
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
-		alpha -= 10;
+		alpha += alphaIncrement;
+		if (alpha + alphaIncrement > 1)
+			alpha = 1;
+		else if (alpha + alphaIncrement < 0.15f)
+			alpha = 0.15f;
 	}
 	writeImage(image_final, settings->getOutputDirectory(), settings->getOutputName());
 }
@@ -217,7 +236,7 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 	Image copy(image);
 	int w = copy.getWidth();
 	int h = copy.getHeight();
-	for(int x = 0; x < w; x++)
+	for (int x = 0; x < w; x++)
 	{
 		Image copy(image);
 		int w = copy.getWidth();
@@ -241,10 +260,10 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 
 
 
-	void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
-	{
-		std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
-	}
+void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
+{
+	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
+}
 
 
 void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
@@ -275,7 +294,7 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 	}
 }
 
-void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage, int alpha)
+void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage, float alpha)
 {
 	for (int y = 0; y < finalImage->getHeight(); y++)
 	{
@@ -286,18 +305,26 @@ void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage
 			uint8_t* pixM = mask->getPixel(x, y);
 			if (pixM[0] != 0)
 			{
-				pix2[3] = alpha;
-
+				//pix2[3] = alpha;
+				if (alpha != 1)
+				{
+					pix2[0] = int((alpha * pix2[0] + pix1[0]) / 2);
+					pix2[1] = int((alpha * pix2[1] + pix1[1]) / 2);
+					pix2[2] = int((alpha * pix2[2] + pix1[2]) / 2);
+				}
 				/*std::cout << "red:" << unsigned(pix2[0]) << std::endl;
 				std::cout << "green:" << unsigned(pix2[1]) << std::endl;
 				std::cout << "blue:" << unsigned(pix2[2]) << std::endl;
 				std::cout << "alpha:" << unsigned(pix2[3]) << std::endl;
 				std::cout << std::endl;*/
+
 				// trouver la bonne m�thode blend ici
-				/*pix1[0] = pix2[0];
-				pix1[1] = pix2[1];
-				pix1[2] = pix2[2];
-				pix1[3] = 0.2f;*/
+				//pix1[0] = pix2[0];
+				//pix1[1] = pix2[1];
+				//pix1[2] = pix2[2];
+				//pix1[3] = 0.2f;
+
+
 				finalImage->setPixel(x, y, pix2);
 
 			}
@@ -383,7 +410,7 @@ void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirector
 
 		// Capture frame-by-frame
 		vid >> frame;
-		
+
 		// If the frame is empty, break immediately
 		if (frame.empty())
 			break;
