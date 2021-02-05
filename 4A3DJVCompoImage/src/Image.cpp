@@ -27,14 +27,13 @@ Image::Image()
 Image::Image(const char* filename) {
 	if (read(filename)) {
 		printf("Read %s\n", filename);
-		size = width * height * channels;
+		size = width * height * STBI_rgb_alpha;
 	}
 	else {
 		printf("Failed to read %s\n", filename);
 		stbi_image_free(data);
 	}
 }
-
 
 
 Image::Image(const int w, const int h, const int channels) : width(w), height(h), channels(channels) {
@@ -52,7 +51,11 @@ Image::~Image() {
 }
 
 bool Image::read(const char* filename) {
-	data = stbi_load(filename, &width, &height, &channels, 0);
+	int channTMP = 0;
+	data = stbi_load(filename, &width, &height, &channTMP, STBI_rgb_alpha);
+	std::cout << "temp channel val:" <<  channTMP;
+	channels = STBI_rgb_alpha;
+	//std::cout << filename << " nb channel:" << channels << std::endl;
 	return data != NULL;
 }
 

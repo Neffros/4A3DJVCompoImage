@@ -22,10 +22,10 @@ public:
 	static void binaryMerge(Image* mask, Image* image1, Image* image2, int alpha);
 	static void getVideoFrame(std::string outputPath, std::string filename, int step);
 	static bool checkVideoInPath(std::string path, std::string videoName);
-	static std::vector<Image> selectUsedImages(std::vector<Image> images);
-	static std::vector<Image> selectionFromOverlap(std::vector<Image> images);
-	static std::vector<Image> selectionFromStep(std::vector<Image> images);
-	static std::vector<Image> selectionFromDistance(std::vector<Image> images);
+	static std::vector<Image> selectUsedImages(std::vector<Image>& images, Settings* settings);
+	static std::vector<Image> selectionFromOverlap(std::vector<Image>& images, Settings* settings);
+	static std::vector<Image> selectionFromStep(std::vector<Image>& images, Settings* settings);
+	static std::vector<Image> selectionFromDistance(std::vector<Image>& images, Settings* settings);
 	static void StartImageProcess();
 
 	std::vector<Image> getImages() const;

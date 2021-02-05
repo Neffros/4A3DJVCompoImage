@@ -43,6 +43,29 @@ bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
 
 	return false;
 }
+std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Settings* settings)
+{
+	if (settings->getIsOverlapImage())
+		selectionFromOverlap(images, settings);
+	else if (settings->getIsStepImage())
+		selectionFromStep(images, settings);
+	else if (settings->getIsDistanceImage())
+		selectionFromDistance(images, settings);
+		
+	return std::vector<Image>();
+}
+std::vector<Image> AlgoImages::selectionFromOverlap(std::vector<Image>& images, Settings* settings)
+{
+	return std::vector<Image>();
+}
+std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
+{
+	return std::vector<Image>();
+}
+std::vector<Image> AlgoImages::selectionFromDistance(std::vector<Image>& images, Settings* settings)
+{
+	return std::vector<Image>();
+}
 bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 {
 
@@ -83,8 +106,11 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 
 void AlgoImages::StartImageProcess()
 {
+	
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
+	/*settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");*/
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
@@ -93,16 +119,19 @@ void AlgoImages::StartImageProcess()
 	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 	getBackground(images, background);
 	Image image_final(background);
-	writeImage(background, settings->getOutputDirectory(), settings->getOutputName()); //TODO not putting in the selected folder
+	std::cout << "nb channels: " << image_final.getChannels();
+	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
+	int alpha = 255;
 	for (int i = 0; i < images.size(); i++)
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-		getImageMask(images[i], background, mask, 50.0f);
+		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
 		writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
 		Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
-		writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
-		binaryMerge(&mask, &image_final, &images[i], (255 - i) % 255);
+		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
+		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
+		alpha -= 10;
 	}
 	writeImage(image_final, settings->getOutputDirectory(), settings->getOutputName());
 }
@@ -246,29 +275,30 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 	}
 }
 
-void AlgoImages::binaryMerge(Image* mask, Image* image1, Image* image2, int alpha)
+void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage, int alpha)
 {
-	for (int y = 0; y < image1->getHeight(); y++)
+	for (int y = 0; y < finalImage->getHeight(); y++)
 	{
-		for (int x = 0; x < image1->getWidth(); x++)
+		for (int x = 0; x < finalImage->getWidth(); x++)
 		{
-			uint8_t* pix1 = image1->getPixel(x, y);
-			uint8_t* pix2 = image2->getPixel(x, y);
+			uint8_t* pix1 = finalImage->getPixel(x, y);
+			uint8_t* pix2 = currentImage->getPixel(x, y);
 			uint8_t* pixM = mask->getPixel(x, y);
 			if (pixM[0] != 0)
 			{
-				uint8_t* pix1 = image1->getPixel(x, y);
-				uint8_t* pix2 = image2->getPixel(x, y);
-				uint8_t* pixM = mask->getPixel(x, y);
-				if (pixM[0] != 0)
-				{
-					// trouver la bonne m�thode blend ici
-					pix2[0] *= pix1[0];
-					pix2[1] *= pix1[1];
-					pix2[2] *= pix1[2];
+				pix2[3] = alpha;
 
-					image1->setPixel(x, y, pix2);
-				}
+				/*std::cout << "red:" << unsigned(pix2[0]) << std::endl;
+				std::cout << "green:" << unsigned(pix2[1]) << std::endl;
+				std::cout << "blue:" << unsigned(pix2[2]) << std::endl;
+				std::cout << "alpha:" << unsigned(pix2[3]) << std::endl;
+				std::cout << std::endl;*/
+				// trouver la bonne m�thode blend ici
+				/*pix1[0] = pix2[0];
+				pix1[1] = pix2[1];
+				pix1[2] = pix2[2];
+				pix1[3] = 0.2f;*/
+				finalImage->setPixel(x, y, pix2);
 
 			}
 		}
@@ -353,14 +383,14 @@ void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirector
 
 		// Capture frame-by-frame
 		vid >> frame;
-
+		
 		// If the frame is empty, break immediately
 		if (frame.empty())
 			break;
 
 		c++;
 		if (c % step == 0) {
-			imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".jpg", frame);
+			imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".png", frame);
 			c = 0;
 			nbImg++;
 		}

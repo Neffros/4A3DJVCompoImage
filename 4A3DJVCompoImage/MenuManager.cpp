@@ -88,7 +88,6 @@ void MenuManager::showOptionMenu()
 			std::cout << "set max mask difference value (float)" << std::endl;
 			std::cin >> val;
 			settings->setMaxMaskDiff(val);
-
 		case -1:
 			showMainMenu();
 			break;

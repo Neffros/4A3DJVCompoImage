@@ -15,7 +15,7 @@ class Settings {
 		std::string videoDirectory;
 		std::string videoName;
 		int videoFrameFrequency = 5;
-		float maxMaskDiff = 50.0;
+		float maxMaskDiff = 50.0f;
 		bool isStepImage;
 		bool isOverlapImage;
 		bool isDistanceImage;
