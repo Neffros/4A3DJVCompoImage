@@ -164,7 +164,7 @@ void AlgoImages::StartImageProcess()
 		}
 		std::pair<int, int> p2 = getMiddleMask(mask);
 		if (settings->getIsDistanceImage() && getDistanceBetweenPoint(p1, p2) < settings->getMinDistance()) continue;
-		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
+		binaryMerge(&mask, &image_final, &images[i], alpha);
 		alpha += alphaIncrement;
 		if (alpha + alphaIncrement > 1)
 			alpha = 1;
@@ -175,11 +175,7 @@ void AlgoImages::StartImageProcess()
 		if (settings->getDrawFinalMask())
 			writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
 		p1 = p2;
-		//writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
-		//Image cleaned_mask(mask);
-		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
-		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
-		//std::cout << "alpha is: " << alpha << std::endl;
+
 	}
 	if (settings->getIsGrayScale()) toGrayscale(image_final);
 
@@ -206,7 +202,6 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 				uint8_t* p = image.getPixel(x_offset, y_offset);
 				if (p[0] == 255)
 				{
-					//image.setPixel(x_offset, y_offset, pixBlack);
 					neighbors.push_back(std::make_pair(x_offset, y_offset));
 				}
 			}
@@ -220,7 +215,6 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	std::deque<std::pair<int, int>> q;
 	q.push_back(std::make_pair(x, y));
 	Image copy(image);
-	//std::cout << "NB CHANNELS" << image.getChannels() << std::endl;
 	uint8_t pixBlack[3] = { 0 , 0 ,0 };
 	copy.setPixel(x, y, pixBlack);
 
@@ -229,7 +223,7 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	{
 		totalSize++;
 		std::pair<int, int> current = q.back();
-		q.pop_back(); // remove it because back() does not do it
+		q.pop_back(); // remove from queue because back() does not do it
 		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 		for (int i = 0; i < neigbhors.size(); i++)
 		{
@@ -251,7 +245,7 @@ void AlgoImages::removeConnexeComposante(Image& mask, int x, int y)
 	while (!q.empty())
 	{
 		std::pair<int, int> current = q.back();
-		q.pop_back(); // remove it because back() does not do it
+		q.pop_back(); // remove from queue because back() does not do it
 		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 		for (int i = 0; i < neigbhors.size(); i++)
 		{
@@ -334,7 +328,6 @@ void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage
 			uint8_t* pixM = mask->getPixel(x, y);
 			if (pixM[0] != 0)
 			{
-				//pix2[3] = alpha;
 				if (alpha != 1)
 				{
 					pix2[0] = int((alpha * pix2[0] + pix1[0]) / 2);
