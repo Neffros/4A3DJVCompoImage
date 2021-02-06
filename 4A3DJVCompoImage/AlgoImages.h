@@ -37,5 +37,7 @@ public:
 	static int getConnexeComposanteSize(Image& image, int x, int y);		
 	static void removeConnexeComposante(Image& image, int x, int y);
 	static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
+	static std::pair<int, int> getMiddleMask(Image& mask);
+	static float getDistanceBetweenPoint(std::pair<int, int> p1, std::pair<int, int> p2);
 
 };

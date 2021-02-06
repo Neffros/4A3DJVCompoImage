@@ -479,3 +479,8 @@ void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirector
 		}
 	}
 }
+
+float AlgoImages::getDistanceBetweenPoint(std::pair<int, int> p1, std::pair<int, int> p2)
+{
+	return sqrt(pow(p2.first - p1.first, 2) + pow(p2.second - p1.first, 2) * 1.0);
+}
