@@ -484,3 +484,27 @@ float AlgoImages::getDistanceBetweenPoint(std::pair<int, int> p1, std::pair<int,
 {
 	return sqrt(pow(p2.first - p1.first, 2) + pow(p2.second - p1.first, 2) * 1.0);
 }
+
+std::pair<int, int> AlgoImages::getMiddleMask(Image& mask)
+{
+	int w = mask.getWidth();
+	int h = mask.getHeight();
+	int X = 0;
+	int Y = 0;
+	int denominator = 0;
+	for (int x = 0; x < w; x++)
+	{
+		for (int y = 0; y < h; y++)
+		{
+			if (mask.getPixel(x, y)[0] == 255)
+			{
+				X += x;
+				Y += y;
+				denominator++;
+			}
+		}
+	}
+	X /= denominator;
+	Y /= denominator;
+	return std::make_pair(X, Y);
+}
