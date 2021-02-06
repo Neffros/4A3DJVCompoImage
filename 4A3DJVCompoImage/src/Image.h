@@ -6,10 +6,10 @@ enum Extension {
 };
 class Image {
 	private:
-		uint8_t* data = NULL;
-		size_t size = 0;
-		int width;
-		int height;
+		uint8_t* data = NULL; // table of int sort by order r ,g ,b ,a (according to number of channels)
+		size_t size = 0; // data table size
+		int width; 
+		int height; 
 		int channels;
 	public:
 		Image();
@@ -29,7 +29,6 @@ class Image {
 		uint8_t* getPixel(int x, int y) const;
 		void setPixel(int x, int y, uint8_t* val);
 		
-		Image& grayscale();
 
 		Image& operator=(Image& const image);
 

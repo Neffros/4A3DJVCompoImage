@@ -1,8 +1,8 @@
 #include "Settings.h"
 
-Settings* Settings::instance = 0;
+Settings* Settings::instance = nullptr;
 
-Settings *Settings::getInstance()
+Settings* Settings::getInstance()
 {
 	if (instance == nullptr)
 		instance = new Settings();
@@ -10,7 +10,8 @@ Settings *Settings::getInstance()
 }
 
 Settings::Settings()
-{}
+{
+}
 
 std::string Settings::getImageDirectory() const
 {
@@ -46,11 +47,6 @@ FadingState Settings::getFade() const
 	return this->fade;
 }
 
-//bool Settings::getIsStepImage() const
-//{
-//	return this->isStepImage;
-//}
-
 bool Settings::getIsOverlapImage() const
 {
 	return this->isOverlapImage;
@@ -71,10 +67,10 @@ int Settings::getOverlap() const
 	return this->overlap;
 }
 
-//int Settings::getStepDistance() const
-//{
-//	return this->stepDistance;
-//}
+std::string Settings::getSavedDirectory() const
+{
+	return this->savedDirectory;
+}
 
 int Settings::getMinDistance() const
 {
@@ -119,15 +115,19 @@ void Settings::setFade(FadingState fadingState)
 	this->fade = fadingState;
 }
 
+
+bool Settings::getIsGrayScale() const
+{
+	return this->isGrayScale;
+}
+
 int Settings::getConnexeTreshold() const
 {
 	return this->connexeTreshold;
 }
 
-//void Settings::setIsStepImage(bool isStepImage)
-//{
-//	this->isStepImage = isStepImage;
-//}
+int Settings::getDrawMask() const { return this->drawMask; }
+int Settings::getDrawFinalMask() const { return this->drawFinalMask; }
 
 void Settings::setIsOverlapImage(bool isOverlapImage)
 {
@@ -143,21 +143,40 @@ void Settings::setIsDistanceImage(bool isDistanceImage)
 void Settings::setOverlap(int val)
 {
 	this->overlap = val;
-
 }
 void Settings::setConnexeThreshold(int treshold)
 {
 	this->connexeTreshold = treshold;
 }
+void Settings::setSavedDirectory(std::string directory)
+{
+	this->savedDirectory = directory;
+}
 
-
-//void Settings::setStepDistance(int val)
-//{
-//	this->stepDistance = val;
-
-//}
+void Settings::setIsGrayScale(bool isGrayScale)
+{
+	this->isGrayScale = isGrayScale;
+}
 
 void Settings::setMinDistance(int val)
 {
 	this->minDistance = val;
+}
+
+void Settings::setDrawMask(bool b)
+{
+	this->drawMask = b;
+}
+void Settings::setDrawFinalMask(bool b)
+{
+	this->drawFinalMask = b;
+}
+
+bool  Settings::getEnableConnexe() const
+{
+	return this->enableConnexe;
+}
+void Settings::setEnableConnexe(bool b)
+{
+	this->enableConnexe = b;
 }

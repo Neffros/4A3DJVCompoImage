@@ -6,7 +6,8 @@ namespace fs = std::filesystem;
 using namespace cv;
 
 
-
+Settings* AlgoImages::settings = Settings::getInstance();
+//Gets all images in the given path
 std::vector<Image> AlgoImages::getAllImagesInPath(std::string path)
 {
 	std::vector<Image> images;
@@ -27,7 +28,7 @@ std::vector<Image> AlgoImages::getAllImagesInPath(std::string path)
 	}
 	return images;
 }
-
+//Check if the folder contains the video according to the param videoName
 bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
 	if (path == "" || videoName == "") return false;
 	int i = 0;
@@ -43,19 +44,8 @@ bool AlgoImages::checkVideoInPath(std::string path, std::string videoName) {
 
 	return false;
 }
-/*
-std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Settings* settings)
-{
-	if (settings->getIsOverlapImage())
-		selectionFromOverlap(images, settings);
-	else if (settings->getIsStepImage())
-		selectionFromStep(images, settings);
-	else if (settings->getIsDistanceImage())
-		selectionFromDistance(images, settings);
 
-	return std::vector<Image>();
-}*/
-
+//Compare 2 masks and check how much they are overlapping according to the param maxOverlapPercent in percentage
 bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, int maxOverlapPercent)
 {
 	int overlap = 0;
@@ -79,16 +69,11 @@ bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, int m
 
 	return ((overlap * 100) / nbPixTarget <= maxOverlapPercent);
 }
-
-/*std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
-{
-	return std::vector<Image>();
-}*/
-bool selectionFromDistance(Image& maskFinal, Image& targetMask, int minDistance)
-{
-
-	return false;
-}
+//Check the settings configuration :
+//If it's a video : check the folder, search for the video and return true if it was found and add the video's images in our list of images. Return false if not
+//If it's images, check if the path for the images and output directory are filled, if not, return false
+//If the list of images is empty, return false if no images was found
+//Check if images are in the same size, return true if it is, else return false
 bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 {
 
@@ -127,24 +112,20 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 }
 
 
-
+//Start the main process for the images according to the settings
+//Mainly merge images according to the masks
+//Can check how much it will overlap, fade and set distance between images
 void AlgoImages::StartImageProcess()
 {
-
-
 	std::vector<Image> images;
-	Settings* settings = Settings::getInstance();
-	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
+
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	//Image background("E:\\dev\\4A3DJVCompoImage\\background.png");
 	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 	getBackground(images, background);
 	Image image_final(background);
-	std::cout << "nb channels: " << image_final.getChannels();
 	writeImage(background, settings->getOutputDirectory(), "background.png");
 	float alpha = 1;
 	float alphaIncrement = 0;
@@ -153,12 +134,12 @@ void AlgoImages::StartImageProcess()
 	else if (settings->getFade() == TransparentToOpaque)
 	{
 		alpha = 0.15f;
-		alphaIncrement = 1.0f / float(images.size());//std::round(images.size() * (100 / 255)/100);
+		alphaIncrement = 1.0f / float(images.size());
 	}
 	else if (settings->getFade() == OpaqueToTransparent)
 	{
 		alpha = 1.0f;
-		alphaIncrement = -1.0f / float(images.size()); //-std::round(images.size() * 1000 / 255);
+		alphaIncrement = -1.0f / float(images.size()); 
 	}
 
 	Image maskFinal(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
@@ -169,42 +150,47 @@ void AlgoImages::StartImageProcess()
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
-		//writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
-		//cleanNoiseOnBinaryMask(mask, settings->getConnexeTreshold());
-		writeImage(mask, settings->getOutputDirectory(), "maskClean" + std::to_string(i) + ".png");
+
+		if(settings->getEnableConnexe())
+			cleanNoiseOnBinaryMask(mask, settings->getConnexeTreshold());
+
+		if (settings->getDrawMask())
+			writeImage(mask, settings->getOutputDirectory(), "maskClean" + std::to_string(i) + ".png");
+
 		if (settings->getIsOverlapImage() && !selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
 		{
 			std::cout << "this cannot continue" << std::endl;
 			continue;
 		}
 		std::pair<int, int> p2 = getMiddleMask(mask);
-		if (getDistanceBetweenPoint(p1, p2) < 250) continue;
+		if (settings->getIsDistanceImage() && getDistanceBetweenPoint(p1, p2) < settings->getMinDistance()) continue;
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
 		if (alpha + alphaIncrement > 1)
 			alpha = 1;
 		else if (alpha + alphaIncrement < 0.15f)
 			alpha = 0.15f;
+
 		getImageMask(image_final, background, maskFinal, settings->getMaxMaskDiff());
+		if (settings->getDrawFinalMask())
+			writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
 		p1 = p2;
 		//writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
 		//Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
 		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
 		//std::cout << "alpha is: " << alpha << std::endl;
-
 	}
+	if (settings->getIsGrayScale()) toGrayscale(image_final);
+
+
 	writeImage(image_final, settings->getOutputDirectory(), settings->getOutputName());
 }
 
-
+//Get the neighbors pixel according to x and y
 std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
 {
-
-
-
-
-	// surroudings-connexity neighbors x and y coordinates
+	// surroundings-connexity neighbors x and y coordinates
 	std::vector<std::pair<int, int>> surroundings = { std::make_pair(-1,1),std::make_pair(0,1),std::make_pair(1,1),std::make_pair(-1,0),std::make_pair(1,0),std::make_pair(-1,-1),std::make_pair(0,-1),std::make_pair(1,-1) };
 	std::vector<std::pair<int, int>> neighbors;
 	int size = surroundings.size();
@@ -228,7 +214,7 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 	}
 	return neighbors;
 }
-
+//Get the subject size according to the mask, coordinate x and y
 int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 {
 	std::deque<std::pair<int, int>> q;
@@ -251,10 +237,9 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 			q.push_back(neigbhors[i]);
 		}
 	}
-	//writeImage(copy, "E:\\dev\\4A3DJVCompoImage\\output\\", std::to_string(x + y) + "mask_prout.png");
 	return totalSize;
 }
-
+//Delete the subject on the mask with a coordinate x and y
 void AlgoImages::removeConnexeComposante(Image& mask, int x, int y)
 {
 	std::deque<std::pair<int, int>> q;
@@ -278,25 +263,9 @@ void AlgoImages::removeConnexeComposante(Image& mask, int x, int y)
 	mask = copy;
 }
 
-
+//Clean the noise in the mask according to a certain threshold
 void AlgoImages::cleanNoiseOnBinaryMask(Image& mask, int threshold)
 {
-	/*
-		Image copy(mask);
-	int w = copy.getWidth();
-	int h = copy.getHeight();
-
-	for (int x = 0; x < w; x++)
-	{
-		for (int y = 0; y < h; y++)
-		{
-			if (copy.getPixel(x, y)[0] == 255)
-			{
-				if(get)
-			}
-		}
-	}*/
-
 	Image copy(mask);
 	int w = copy.getWidth();
 	int h = copy.getHeight();
@@ -318,13 +287,13 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& mask, int threshold)
 
 
 
-
+//Create an image according to an Image instance, and create a file in a path and set the name
 void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
 {
 	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str()) << " at filename: " << filename << std::endl;
 }
 
-
+//Get the mask of an image
 void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, float maxDiff)
 {
 	uint8_t pixBlack[3] = { 0 , 0 ,0 };
@@ -353,6 +322,7 @@ void AlgoImages::getImageMask(Image targetImage, Image background, Image& mask, 
 	}
 }
 
+// blend two mask according to alpha and return result in finalImage
 void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage, float alpha)
 {
 	for (int y = 0; y < finalImage->getHeight(); y++)
@@ -371,18 +341,6 @@ void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage
 					pix2[1] = int((alpha * pix2[1] + pix1[1]) / 2);
 					pix2[2] = int((alpha * pix2[2] + pix1[2]) / 2);
 				}
-				/*std::cout << "red:" << unsigned(pix2[0]) << std::endl;
-				std::cout << "green:" << unsigned(pix2[1]) << std::endl;
-				std::cout << "blue:" << unsigned(pix2[2]) << std::endl;
-				std::cout << "alpha:" << unsigned(pix2[3]) << std::endl;
-				std::cout << std::endl;*/
-
-				// trouver la bonne m�thode blend ici
-				//pix1[0] = pix2[0];
-				//pix1[1] = pix2[1];
-				//pix1[2] = pix2[2];
-				//pix1[3] = 0.2f;
-
 
 				finalImage->setPixel(x, y, pix2);
 
@@ -391,6 +349,7 @@ void AlgoImages::binaryMerge(Image* mask, Image* finalImage, Image* currentImage
 	}
 }
 
+// return the computed background in res
 void AlgoImages::getBackground(std::vector<Image> images, Image& res)
 {
 	std::vector<uint8_t> pixValsR;
@@ -453,7 +412,7 @@ bool AlgoImages::checkSizeImages(std::vector<Image> images)
 		return true;
 	return false;
 }
-
+//Generate images from a video with a step
 void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirectory, int step) {
 	VideoCapture vid(videoDirectory);
 	int c = 0;
@@ -476,18 +435,25 @@ void AlgoImages::getVideoFrame(std::string outputPath, std::string videoDirector
 
 		c++;
 		if (c % step == 0) {
-			imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".png", frame);
+			if (nbImg < 10) {
+				imwrite(outputPath + "\\img" + "0" + std::to_string(nbImg) + ".png", frame);
+			}
+			else {
+				imwrite(outputPath + "\\img" + std::to_string(nbImg) + ".png", frame);
+			}
 			c = 0;
 			nbImg++;
 		}
 	}
 }
-
+// Get the distance between 2 points
 float AlgoImages::getDistanceBetweenPoint(std::pair<int, int> p1, std::pair<int, int> p2)
 {
 	return sqrt(pow(p2.first - p1.first, 2) + pow(p2.second - p1.first, 2) * 1.0);
 }
 
+// return the middle of white pixels in the mask
+// it is used to calculate distance between two consecutive subject
 std::pair<int, int> AlgoImages::getMiddleMask(Image& mask)
 {
 	int w = mask.getWidth();
@@ -518,4 +484,22 @@ std::pair<int, int> AlgoImages::getMiddleMask(Image& mask)
 		Y /= denominator;
 	}
 	return std::make_pair(X, Y);
+}
+
+//Set the image color in gray
+void AlgoImages::toGrayscale(Image& image)
+{
+	if (image.getChannels() < 3) {
+		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", image);
+	}
+	else {
+		for (int x = 0; x < image.getWidth(); x++) {
+			for (int y = 0; y < image.getHeight(); y++) {
+				uint8_t* pix = image.getPixel(x, y);
+				uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
+				pix[0] = pix[1] = pix[2] = gray;
+				image.setPixel(x, y, pix);
+			}
+		}
+	}
 }

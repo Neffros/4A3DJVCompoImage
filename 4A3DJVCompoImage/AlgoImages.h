@@ -10,10 +10,10 @@ using namespace cv;
 class AlgoImages
 {
 private:
-	//std::vector<Image> images;
-	Settings* settings = Settings::getInstance();
+	static Settings* settings;
 	static bool validateImages(Settings* settings, std::vector<Image>& images);
 public:
+	static void toGrayscale(Image& image);
 	static std::vector<Image> getAllImagesInPath(std::string path);
 	static void writeImage(Image& image, std::string directory, std::string filename);
 	static void getBackground(std::vector<Image> images, Image& res);
@@ -24,19 +24,14 @@ public:
 	static bool checkVideoInPath(std::string path, std::string videoName);
 	static std::vector<Image> selectUsedImages(std::vector<Image>& images, Settings* settings);
 	static bool selectionFromOverlap(Image& maskFinal, Image& targetMask, int maxOverlapPercent);
-	//static bool selectionFromStep(std::vector<Image>& images, Settings* settings);
-	static bool selectionFromDistance(Image& maskFinal, Image& targetMask, int minDistance);
 	static void StartImageProcess();
 
 	std::vector<Image> getImages() const;
 	void setImages(std::vector<Image> images);
-	/// <summary>
-	/// Return eights white neigbhors of a white pixel. 
-	/// </summary>
 	static std::vector<std::pair<int, int>> getConnexeNeighborsPixel(Image& image, int x, int y);
-	static int getConnexeComposanteSize(Image& image, int x, int y);		
+	static int getConnexeComposanteSize(Image& image, int x, int y);
 	static void removeConnexeComposante(Image& image, int x, int y);
-	static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
+	static void cleanNoiseOnBinaryMask(Image& image, int threshold);
 	static std::pair<int, int> getMiddleMask(Image& mask);
 	static float getDistanceBetweenPoint(std::pair<int, int> p1, std::pair<int, int> p2);
 

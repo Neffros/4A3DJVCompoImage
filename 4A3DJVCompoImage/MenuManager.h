@@ -14,6 +14,7 @@
 class MenuManager
 {
 	private:
+		static MenuManager* instance;
 		Settings* settings = Settings::getInstance();
 		//display menus
 		void showOptionMenu();
@@ -22,15 +23,16 @@ class MenuManager
 		void showFadingSettings();
 		void showOverlapSettings();
 		void showDistanceSettings();
-		//void showStepSettings();
+		MenuManager();
 
 		//select directory methods
 		std::string BrowseFolder(std::string saved_path);
 		static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 	public:
 		//single instance of menuManager
-		static MenuManager& getInstance();
+		static MenuManager* getInstance();
 		void showMainMenu();
+		void showMaskMenu();
 
 
 	

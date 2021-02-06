@@ -1,11 +1,19 @@
 #include "MenuManager.h"
 
-MenuManager& MenuManager::getInstance()
+MenuManager* MenuManager::instance = nullptr;
+
+MenuManager* MenuManager::getInstance()
 {
-	static MenuManager instance;
+	if (instance == nullptr)
+		instance = new MenuManager();
 	return instance;
 }
 
+MenuManager::MenuManager()
+{
+
+}
+//Main menu with choices for configurations
 void MenuManager::showMainMenu()
 {
 	int choice = 0;
@@ -49,7 +57,7 @@ void MenuManager::showMainMenu()
 	showMainMenu();
 
 }
-
+//Show options on the menu
 void MenuManager::showOptionMenu()
 {
 	int choice = 0;
@@ -57,10 +65,10 @@ void MenuManager::showOptionMenu()
 	std::cout << "Options Menu" << std::endl;
 	std::cout << "1 = fading settings" << std::endl;
 	std::cout << "2 = overlap settings" << std::endl;
-	//std::cout << "3 = step settings" << std::endl;
 	std::cout << "3 = minimal distance settings" << std::endl;
-	std::cout << "4 = set max mask difference" << std::endl;
-	std::cout << "5 = set max connexe treshhold" << std::endl;
+	std::cout << "4 = mask settings" << std::endl;
+	std::cout << "5 = grayscale output" << std::endl;
+	
 	std::cout << "\n\n-1 = return to Main Menu" << std::endl;
 	std::cin >> choice;
 	switch (choice)
@@ -77,24 +85,16 @@ void MenuManager::showOptionMenu()
 		case 2:
 			showOverlapSettings();
 			break;
-		/*case 3:
-			showStepSettings();
-			break;*/
 		case 3:
 			showDistanceSettings();
 			break;
 		case 4:
-			std::cin.clear();
-			std::cin.ignore(INT_MAX, '\n');
-			std::cout << "set max mask difference value (float)" << std::endl;
-			std::cin >> val;
-			settings->setMaxMaskDiff(val);
+			showMaskMenu();
+			break;
 		case 5:
-			std::cin.clear();
-			std::cin.ignore(INT_MAX, '\n');
-			std::cout << "set max connexe treshhold value " << std::endl;
-			std::cin >> val;
-			settings->setConnexeThreshold(val);
+			settings->setIsGrayScale(!settings->getIsGrayScale());
+			std::cout << "gray scale set to: " << settings->getIsGrayScale() << std::endl;
+			break;
 		case -1:
 			showMainMenu();
 			break;
@@ -104,7 +104,7 @@ void MenuManager::showOptionMenu()
 
 	showOptionMenu();
 }
-
+//Show images options on the menu
 void MenuManager::showImageMenu()
 {
 	int choice = 0;
@@ -128,11 +128,13 @@ void MenuManager::showImageMenu()
 		showImageMenu();
 		break;
 	case 1:
-		settings->setImageDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage"));
+		settings->setImageDirectory(BrowseFolder(settings->getSavedDirectory()));
+		settings->setSavedDirectory(settings->getImageDirectory());
 		std::cout << "Chosen path: " << settings->getImageDirectory() << std::endl;
 		break;
 	case 2:
-		settings->setOutputDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\");
+		settings->setOutputDirectory(BrowseFolder(settings->getSavedDirectory()) + "\\");
+		settings->setSavedDirectory(settings->getOutputDirectory());
 		std::cout << "Chosen path: " << settings->getOutputDirectory() << std::endl;
 		break;
 	case 3:
@@ -151,7 +153,7 @@ void MenuManager::showImageMenu()
 	showImageMenu();
 
 }
-
+//Show videos options on the menu
 void MenuManager::showVideoMenu()
 {
 	int choice = 0;
@@ -162,7 +164,7 @@ void MenuManager::showVideoMenu()
 	std::cout << "2 = video name (with extension)" << std::endl;
 	std::cout << "3 = output directory" << std::endl;
 	std::cout << "4 = output filename (with extension)" << std::endl;
-	std::cout << "5 = set picture frequency per frame" << std::endl;
+	std::cout << "5 = set picture taken per frame" << std::endl;
 
 	std::cout << "\n\n-1 = Return to main menu" << std::endl;
 
@@ -178,7 +180,9 @@ void MenuManager::showVideoMenu()
 		showVideoMenu();
 		break;
 	case 1:
-		settings->setVideoDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage"));
+		settings->setVideoDirectory(BrowseFolder(settings->getSavedDirectory()));
+		settings->setSavedDirectory(settings->getVideoDirectory());
+
 		std::cout << "Chosen path: " << settings->getVideoDirectory() << std::endl;
 		break;
 	case 2:
@@ -189,7 +193,8 @@ void MenuManager::showVideoMenu()
 		settings->setVideoName(strInput);
 		break;
 	case 3:
-		settings->setOutputDirectory(BrowseFolder("E:\\dev\\4A3DJVCompoImage") + "\\");
+		settings->setOutputDirectory(BrowseFolder(settings->getSavedDirectory()) + "\\");
+		settings->setSavedDirectory(settings->getOutputDirectory());
 		std::cout << "Chosen path: " << settings->getOutputDirectory() << std::endl;
 		break;
 	case 4:
@@ -250,6 +255,7 @@ void MenuManager::showFadingSettings()
 	showFadingSettings();
 }
 
+//Show overlap settings on the menu
 void MenuManager::showOverlapSettings()
 {
 	int choice = 0;
@@ -287,6 +293,7 @@ void MenuManager::showOverlapSettings()
 	showOverlapSettings();
 }
 
+//Show distance settings on the menu
 void MenuManager::showDistanceSettings()
 {
 
@@ -312,7 +319,7 @@ void MenuManager::showDistanceSettings()
 		std::cout << "Enter minimum distance" << std::endl;
 		std::cin.clear();
 		std::cin.ignore(INT_MAX, '\n');
-		std::cin >> choice; //might break?
+		std::cin >> choice; 
 		settings->setMinDistance(choice);
 		break;
 	case -1:
@@ -324,44 +331,6 @@ void MenuManager::showDistanceSettings()
 	std::cin.ignore(INT_MAX, '\n');
 	showDistanceSettings();
 }
-/*
-void MenuManager::showStepSettings()
-{
-
-	int choice = 0;
-
-	std::cout << "Step distance Menu" << std::endl;
-	std::cout << "1 = enable/disable minimal step\t*disabled by default" << std::endl;
-	std::cout << "2 = set step distance" << std::endl;
-	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
-	std::cin >> choice;
-	switch (choice)
-	{
-	default:
-		std::cout << "Wrong input" << std::endl;;
-		std::cin.clear();
-		std::cin.ignore(INT_MAX, '\n');
-		showStepSettings();
-		break;
-	case 1:
-		settings->setIsStepImage(!settings->getIsStepImage());
-		break;
-	case 2:
-		std::cout << "Enter step distance" << std::endl;
-		std::cin.clear();
-		std::cin.ignore(INT_MAX, '\n');
-		std::cin >> choice; //might break?
-		settings->setStepDistance(choice);
-		break;
-	case -1:
-		showMainMenu();
-		break;
-
-	}
-
-	std::cin.ignore(INT_MAX, '\n');
-	showStepSettings();
-}*/
 
 std::string MenuManager::BrowseFolder(std::string saved_path)
 {
@@ -406,4 +375,60 @@ int MenuManager::BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM 
 	}
 
 	return 0;
+}
+//Show masks settings on the menu
+void MenuManager::showMaskMenu(){
+
+	int choice = 0;
+	float val = 0.0f;
+	std::cout << "Options Menu" << std::endl;
+	std::cout << "1 = set max mask difference" << std::endl;
+	std::cout << "2 = enable Connexe" << std::endl;
+	std::cout << "3 = set max connexe treshhold" << std::endl;
+	std::cout << "4 = print each mask" << std::endl;
+	std::cout << "5 = print each step of final mask" << std::endl;
+
+	std::cout << "\n\n-1 = return to Options Menu" << std::endl;
+	std::cin >> choice;
+	switch (choice)
+	{
+	default:
+		std::cout << "Wrong input" << std::endl;;
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		showMaskMenu();
+		break;
+	case 1:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "set max mask difference value (float)" << std::endl;
+		std::cin >> val;
+		settings->setMaxMaskDiff(val);
+		break;
+	case 2:
+		std::cin.clear();
+		std::cin.ignore(INT_MAX, '\n');
+		std::cout << "set max connexe treshhold value " << std::endl;
+		std::cin >> val;
+		settings->setConnexeThreshold(val);
+		break;
+	case 3:
+		settings->setIsGrayScale(!settings->getIsGrayScale());
+		std::cout << "gray scale set to: " << settings->getIsGrayScale() << std::endl;
+		break;
+	case 4:
+		settings->setDrawMask(!settings->getDrawMask());
+		std::cout << "draw mask set to:" << settings->getDrawMask() << std::endl;
+		break;
+	case 5:
+		settings->setDrawFinalMask(!settings->getDrawFinalMask());
+		std::cout << "draw each step of final mask set to:" << settings->getDrawMask() << std::endl;
+		break;
+	case -1:
+		showOptionMenu();
+		break;
+	}
+
+	std::cin.ignore(INT_MAX, '\n');
+	showMaskMenu();
 }

@@ -5,11 +5,9 @@
 
 int main(int argc, const char* argv[])
 {
-    MenuManager menuManager;
+    MenuManager* menuManager = MenuManager::getInstance();
 
-    menuManager.getInstance();
-
-    menuManager.showMainMenu();
+    menuManager->showMainMenu();
 
     return 0;
 }

@@ -15,20 +15,15 @@ Image::Image()
 	channels = 0;
 }
 
-//Image::Image(const int width, const int height, const int channels)
-//{
-//	uint8_t* data = NULL;
-//	size_t size = 0;
-//	this->width = width;
-//	this->height = height;
-//	this->channels = channels;
-//}
 
+// getter for data
 uint8_t* Image::getData() const { return data; }
+
+
 Image::Image(const char* filename) {
 	if (read(filename)) {
 		printf("Read %s\n", filename);
-		size = width * height * STBI_rgb_alpha;
+		size = width * height * STBI_rgb_alpha; 
 	}
 	else {
 		printf("Failed to read %s\n", filename);
@@ -53,10 +48,10 @@ Image::~Image() {
 
 bool Image::read(const char* filename) {
 	data = stbi_load(filename, &width, &height, &channels, 0);
-	//std::cout << filename << " nb channel:" << channels << std::endl;
 	return data != NULL;
 }
 
+// write an image file with the given filename at the given directory 
 bool Image::write(const char* directory, const char* filename) {
 	Extension ext = getExtension(filename);
 	const int nb = strlen(directory) + strlen(filename);
@@ -97,6 +92,7 @@ int Image::getChannels() const
 	return this->channels;
 }
 
+// check file extension and return it
 Extension Image::getExtension(const char* filename) {
 	const char* ext = strrchr(filename, '.');
 	if (ext != nullptr) {
@@ -116,36 +112,19 @@ Extension Image::getExtension(const char* filename) {
 	return PNG;
 }
 
+// return the table of pixel at x,y coordinate 
 uint8_t* Image::getPixel(int x, int y) const
 {
 	return &data[(y * width + x) * channels];
 }
 
+// set a  table of pixel at x,y coordinate 
 void Image::setPixel(int x, int y, uint8_t* val)
 {
 	memcpy(data + (y * width + x) * channels, val, channels);
 }
 
 
-
-
-Image& Image::grayscale()
-{
-	if (channels < 3) {
-		printf("Image %p has less than 3 channels, it is assumed to already be grayscale.", this);
-	}
-	else {
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				uint8_t* pix = getPixel(x, y);
-				uint8_t gray = (pix[0] + pix[1] + pix[2]) / 3;
-				pix[0] = pix[1] = pix[2] = gray;
-				setPixel(x, y, pix);
-			}
-		}
-	}
-	return *this;
-}
 
 Image& Image::operator=(Image& const image)
 {
