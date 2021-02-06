@@ -145,7 +145,7 @@ void AlgoImages::StartImageProcess()
 	getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
-	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
+	writeImage(background, settings->getOutputDirectory(), "background.png"); 
 	float alpha = 1;
 	float alphaIncrement = 0;
 	if (settings->getFade() == Opaque)
@@ -163,6 +163,7 @@ void AlgoImages::StartImageProcess()
 
 	Image maskFinal(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 	getImageMask(background, background, maskFinal, settings->getMaxMaskDiff());
+	std::pair<int, int> p1 = getMiddleMask(maskFinal);
 
 	for (int i = 0; i < images.size(); i++)
 	{
@@ -176,6 +177,8 @@ void AlgoImages::StartImageProcess()
 			std::cout << "this cannot continue" << std::endl;
 			continue;
 		}
+		std::pair<int,int> p2 = getMiddleMask(mask);
+		if (getDistanceBetweenPoint(p1, p2) < 100) continue;
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
 		if (alpha + alphaIncrement > 1)
@@ -183,7 +186,7 @@ void AlgoImages::StartImageProcess()
 		else if (alpha + alphaIncrement < 0.15f)
 			alpha = 0.15f;
 		getImageMask(image_final, background, maskFinal, settings->getMaxMaskDiff());
-
+		p1 = p2;
 		//writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
 		//Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
