@@ -60,6 +60,7 @@ void MenuManager::showOptionMenu()
 	//std::cout << "3 = step settings" << std::endl;
 	std::cout << "3 = minimal distance settings" << std::endl;
 	std::cout << "4 = set max mask difference" << std::endl;
+	std::cout << "5 = set max connexe treshhold" << std::endl;
 	std::cout << "\n\n-1 = return to Main Menu" << std::endl;
 	std::cin >> choice;
 	switch (choice)
@@ -88,6 +89,12 @@ void MenuManager::showOptionMenu()
 			std::cout << "set max mask difference value (float)" << std::endl;
 			std::cin >> val;
 			settings->setMaxMaskDiff(val);
+		case 5:
+			std::cin.clear();
+			std::cin.ignore(INT_MAX, '\n');
+			std::cout << "set max connexe treshhold value " << std::endl;
+			std::cin >> val;
+			settings->setConnexeThreshold(val);
 		case -1:
 			showMainMenu();
 			break;

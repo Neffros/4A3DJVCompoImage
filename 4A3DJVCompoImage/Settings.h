@@ -16,6 +16,7 @@ class Settings {
 		std::string videoName;
 		int videoFrameFrequency = 5;
 		float maxMaskDiff = 50.0f;
+		int connexeTreshold = 50;
 		//bool isStepImage;
 		bool isOverlapImage = false;
 		bool isDistanceImage = false;
@@ -50,6 +51,7 @@ class Settings {
 		int getOverlap() const;
 		//int getStepDistance() const;
 		int getMinDistance() const;
+		int getConnexeTreshold() const;
 		//setters
 		void setImageDirectory(std::string directory);
 		void setOutputDirectory(std::string directory);
@@ -63,6 +65,7 @@ class Settings {
 		void setIsOverlapImage(bool isOverlapImage);
 		void setIsDistanceImage(bool isDistanceImage);
 		void setOverlap(int val);
+		void setConnexeThreshold(int treshold);
 		//void setStepDistance(int val);
 		void setMinDistance(int val);
 
