@@ -35,7 +35,7 @@ public:
 	/// </summary>
 	static std::vector<std::pair<int, int>> getConnexeNeighborsPixel(Image& image, int x, int y);
 	static int getConnexeComposanteSize(Image& image, int x, int y);		
-	static Image removeConnexeComposante(Image& image, int x, int y);
+	static void removeConnexeComposante(Image& image, int x, int y);
 	static void cleanNoiseOnBinaryMask(Image& image, int threshold);		
 
 };

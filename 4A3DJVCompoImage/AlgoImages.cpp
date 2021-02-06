@@ -127,18 +127,20 @@ bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 }
 
 
+
 void AlgoImages::StartImageProcess()
 {
 
+
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
-	settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
+	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	//Image background("E:\\dev\\4A3DJVCompoImage\\background.png");
 	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 	getBackground(images, background);
 	Image image_final(background);
@@ -166,11 +168,13 @@ void AlgoImages::StartImageProcess()
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
-		cleanNoiseOnBinaryMask(mask, 200);
-		if (!selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
+		//writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
+		cleanNoiseOnBinaryMask(mask, 20);
+		//writeImage(mask, settings->getOutputDirectory(), "maskClean" + std::to_string(i) + ".png");
+		if (settings->getIsOverlapImage() && !selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
 		{
 			std::cout << "this cannot continue" << std::endl;
-			continue;
+			//continue;
 		}
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
@@ -180,8 +184,7 @@ void AlgoImages::StartImageProcess()
 			alpha = 0.15f;
 		getImageMask(image_final, background, maskFinal, settings->getMaxMaskDiff());
 
-		writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
-		//writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
+		//writeImage(maskFinal, settings->getOutputDirectory(), "maskfinal" + std::to_string(i) + ".png");
 		//Image cleaned_mask(mask);
 		//cleanNoiseOnBinaryMask(cleaned_mask, 200);
 		//writeImage(cleaned_mask, settings->getOutputDirectory(), "cleaned_mask" + std::to_string(i) + ".png");
@@ -194,13 +197,19 @@ void AlgoImages::StartImageProcess()
 
 std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& image, int x, int y)
 {
-	// eight-connexity neighbors x and y coordinates
-	int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
+
+
+
+
+	// surroudings-connexity neighbors x and y coordinates
+	std::vector<std::pair<int, int>> surroundings = { std::make_pair(-1,1),std::make_pair(0,1),std::make_pair(1,1),std::make_pair(-1,0),std::make_pair(1,0),std::make_pair(-1,-1),std::make_pair(0,-1),std::make_pair(1,-1) };
 	std::vector<std::pair<int, int>> neighbors;
-	for (int i = 0; i < 16; i++)
+	int size = surroundings.size();
+
+	for (int i = 0; i < size; i++)
 	{
-		int x_offset = x + eight[i];
-		int y_offset = y + eight[i + 1];
+		int x_offset = x + surroundings.at(i).first;
+		int y_offset = y + surroundings.at(i).second;
 		if (x_offset >= 0 && y_offset >= 0)
 		{
 			if (x_offset < image.getWidth() && y_offset < image.getHeight())
@@ -208,6 +217,7 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 				uint8_t* p = image.getPixel(x_offset, y_offset);
 				if (p[0] == 255)
 				{
+					//image.setPixel(x_offset, y_offset, pixBlack);
 					neighbors.push_back(std::make_pair(x_offset, y_offset));
 				}
 			}
@@ -221,55 +231,70 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	std::deque<std::pair<int, int>> q;
 	q.push_back(std::make_pair(x, y));
 	Image copy(image);
+	//std::cout << "NB CHANNELS" << image.getChannels() << std::endl;
 	uint8_t pixBlack[3] = { 0 , 0 ,0 };
 	copy.setPixel(x, y, pixBlack);
-	std::vector<std::pair<int, int>> res;
+
+	int totalSize = 1;
 	while (!q.empty())
 	{
+		totalSize++;
 		std::pair<int, int> current = q.back();
-		res.push_back(current);
 		q.pop_back(); // remove it because back() does not do it
 		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 		for (int i = 0; i < neigbhors.size(); i++)
 		{
 			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
-			q.push_front(neigbhors[i]);
+			q.push_back(neigbhors[i]);
 		}
-
 	}
-	return res.size();
+	//writeImage(copy, "E:\\dev\\4A3DJVCompoImage\\output\\", std::to_string(x + y) + "mask_prout.png");
+	return totalSize;
 }
 
-Image AlgoImages::removeConnexeComposante(Image& image, int x, int y)
+void AlgoImages::removeConnexeComposante(Image& mask , int x, int y)
 {
 	std::deque<std::pair<int, int>> q;
 	q.push_back(std::make_pair(x, y));
-	Image copy(image);
+	Image copy(mask);
 	uint8_t pixBlack[3] = { 0 , 0 ,0 };
 
 	copy.setPixel(x, y, pixBlack);
-	std::vector<std::pair<int, int>> res;
 	while (!q.empty())
 	{
 		std::pair<int, int> current = q.back();
-		res.push_back(current);
 		q.pop_back(); // remove it because back() does not do it
 		std::vector<std::pair<int, int>>  neigbhors = getConnexeNeighborsPixel(copy, current.first, current.second);
 		for (int i = 0; i < neigbhors.size(); i++)
 		{
 			copy.setPixel(neigbhors[i].first, neigbhors[i].second, pixBlack);
-			q.push_front(neigbhors[i]);
+			q.push_back(neigbhors[i]);
 		}
 
 	}
-	return copy;
-
-
+	mask = copy;
 }
 
-void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
+
+void AlgoImages::cleanNoiseOnBinaryMask(Image& mask, int threshold)
 {
-	Image copy(image);
+	/*
+		Image copy(mask);
+	int w = copy.getWidth();
+	int h = copy.getHeight();
+
+	for (int x = 0; x < w; x++)
+	{
+		for (int y = 0; y < h; y++)
+		{
+			if (copy.getPixel(x, y)[0] == 255)
+			{
+				if(get)
+			}
+		}
+	}*/
+
+	Image copy(mask);
 	int w = copy.getWidth();
 	int h = copy.getHeight();
 
@@ -281,7 +306,7 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 			{
 				if (getConnexeComposanteSize(copy, x, y) < threshold)
 				{
-					image = removeConnexeComposante(image, x, y);
+					removeConnexeComposante(mask, x, y);
 				}
 			}
 		}
@@ -293,7 +318,7 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 
 void AlgoImages::writeImage(Image& image, std::string directory, std::string filename)
 {
-	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str());
+	std::cout << "write ? " << image.write(directory.c_str(), filename.c_str()) << " at filename: " << filename << std::endl;
 }
 
 

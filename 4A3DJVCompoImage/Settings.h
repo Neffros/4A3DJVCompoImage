@@ -17,8 +17,8 @@ class Settings {
 		int videoFrameFrequency = 5;
 		float maxMaskDiff = 50.0f;
 		//bool isStepImage;
-		bool isOverlapImage;
-		bool isDistanceImage;
+		bool isOverlapImage = false;
+		bool isDistanceImage = false;
 
 		FadingState fade = Opaque;
 		int overlap;

@@ -24,6 +24,7 @@ Image::Image()
 //	this->channels = channels;
 //}
 
+uint8_t* Image::getData() const { return data; }
 Image::Image(const char* filename) {
 	if (read(filename)) {
 		printf("Read %s\n", filename);
@@ -62,7 +63,7 @@ bool Image::write(const char* directory, const char* filename) {
 	char res[200];
 	strcpy_s(res, directory);
 	strcat_s(res, filename);
-	
+
 	int ok;
 	switch (ext) {
 	case PNG:
@@ -146,3 +147,12 @@ Image& Image::grayscale()
 	return *this;
 }
 
+Image& Image::operator=(Image& const image)
+{
+	width = image.getWidth();
+	height = image.getHeight();
+	channels = image.getChannels();
+	size = width * height * channels;
+	memcpy(data, image.data, size);
+	return *this;
+}

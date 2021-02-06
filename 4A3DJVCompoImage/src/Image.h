@@ -24,11 +24,13 @@ class Image {
 		int getWidth() const;
 		int getHeight() const;
 		int getChannels() const;
+		uint8_t* getData() const;
 		Extension getExtension(const char* filename);
 		uint8_t* getPixel(int x, int y) const;
 		void setPixel(int x, int y, uint8_t* val);
 		
 		Image& grayscale();
 
+		Image& operator=(Image& const image);
 
 };
