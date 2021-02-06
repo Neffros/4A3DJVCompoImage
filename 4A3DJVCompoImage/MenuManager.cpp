@@ -57,9 +57,9 @@ void MenuManager::showOptionMenu()
 	std::cout << "Options Menu" << std::endl;
 	std::cout << "1 = fading settings" << std::endl;
 	std::cout << "2 = overlap settings" << std::endl;
-	std::cout << "3 = step settings" << std::endl;
-	std::cout << "4 = minimal distance settings" << std::endl;
-	std::cout << "5 = set max mask difference" << std::endl;
+	//std::cout << "3 = step settings" << std::endl;
+	std::cout << "3 = minimal distance settings" << std::endl;
+	std::cout << "4 = set max mask difference" << std::endl;
 	std::cout << "\n\n-1 = return to Main Menu" << std::endl;
 	std::cin >> choice;
 	switch (choice)
@@ -76,13 +76,13 @@ void MenuManager::showOptionMenu()
 		case 2:
 			showOverlapSettings();
 			break;
-		case 3:
+		/*case 3:
 			showStepSettings();
-			break;
-		case 4:
+			break;*/
+		case 3:
 			showDistanceSettings();
 			break;
-		case 5:
+		case 4:
 			std::cin.clear();
 			std::cin.ignore(INT_MAX, '\n');
 			std::cout << "set max mask difference value (float)" << std::endl;
@@ -317,7 +317,7 @@ void MenuManager::showDistanceSettings()
 	std::cin.ignore(INT_MAX, '\n');
 	showDistanceSettings();
 }
-
+/*
 void MenuManager::showStepSettings()
 {
 
@@ -354,7 +354,7 @@ void MenuManager::showStepSettings()
 
 	std::cin.ignore(INT_MAX, '\n');
 	showStepSettings();
-}
+}*/
 
 std::string MenuManager::BrowseFolder(std::string saved_path)
 {

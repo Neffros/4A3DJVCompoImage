@@ -22,7 +22,7 @@ class MenuManager
 		void showFadingSettings();
 		void showOverlapSettings();
 		void showDistanceSettings();
-		void showStepSettings();
+		//void showStepSettings();
 
 		//select directory methods
 		std::string BrowseFolder(std::string saved_path);

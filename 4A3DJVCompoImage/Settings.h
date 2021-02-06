@@ -16,13 +16,13 @@ class Settings {
 		std::string videoName;
 		int videoFrameFrequency = 5;
 		float maxMaskDiff = 50.0f;
-		bool isStepImage;
+		//bool isStepImage;
 		bool isOverlapImage;
 		bool isDistanceImage;
 
 		FadingState fade = Opaque;
 		int overlap;
-		int stepDistance;
+		//int stepDistance;
 		int minDistance;
 		
 
@@ -48,7 +48,7 @@ class Settings {
 		bool getIsOverlapImage() const;
 		bool getIsDistanceImage() const;
 		int getOverlap() const;
-		int getStepDistance() const;
+		//int getStepDistance() const;
 		int getMinDistance() const;
 		//setters
 		void setImageDirectory(std::string directory);
@@ -63,7 +63,7 @@ class Settings {
 		void setIsOverlapImage(bool isOverlapImage);
 		void setIsDistanceImage(bool isDistanceImage);
 		void setOverlap(int val);
-		void setStepDistance(int val);
+		//void setStepDistance(int val);
 		void setMinDistance(int val);
 
 };

@@ -56,7 +56,7 @@ std::vector<Image> AlgoImages::selectUsedImages(std::vector<Image>& images, Sett
 	return std::vector<Image>();
 }*/
 
-bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, float maxOverlapPercent)
+bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, int maxOverlapPercent)
 {
 	int overlap = 0;
 	int nbPixTarget = 0;
@@ -80,13 +80,14 @@ bool AlgoImages::selectionFromOverlap(Image& maskFinal, Image& targetMask, float
 	return ((overlap * 100) / nbPixTarget <= maxOverlapPercent);
 }
 
-std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
+/*std::vector<Image> AlgoImages::selectionFromStep(std::vector<Image>& images, Settings* settings)
 {
 	return std::vector<Image>();
-}
-std::vector<Image> AlgoImages::selectionFromDistance(std::vector<Image>& images, Settings* settings)
+}*/
+bool selectionFromDistance(Image& maskFinal, Image& targetMask, int minDistance)
 {
-	return std::vector<Image>();
+
+	return false;
 }
 bool AlgoImages::validateImages(Settings* settings, std::vector<Image>& images)
 {
@@ -131,15 +132,15 @@ void AlgoImages::StartImageProcess()
 
 	std::vector<Image> images;
 	Settings* settings = Settings::getInstance();
-	//settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
-	//settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
+	settings->setOutputDirectory("E:\\dev\\4A3DJVCompoImage\\output\\");
+	settings->setImageDirectory("E:\\dev\\4A3DJVCompoImage\\4A3DJVCompoImage\\sampleImages\\SCHOODING_IMG");
 	bool isValid = validateImages(settings, images);
 	if (!isValid)
 		return;
 
-	Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
-	//Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
-	//getBackground(images, background);
+	//Image background("E:\\dev\\4A3DJVCompoImage\\output\\background.png");
+	Image background(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
+	getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
 	writeImage(background, settings->getOutputDirectory(), "background.png"); //TODO not putting in the selected folder
@@ -165,6 +166,7 @@ void AlgoImages::StartImageProcess()
 	{
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
+		cleanNoiseOnBinaryMask(mask, 200);
 		if (!selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
 		{
 			std::cout << "this cannot continue" << std::endl;
@@ -194,7 +196,7 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 {
 	// eight-connexity neighbors x and y coordinates
 	int eight[16] = { -1,1,0,1,1,1,-1,0,1,0,-1,-1,0,-1,1,-1 };
-	std::vector<std::pair<int, int>> neigbhors;
+	std::vector<std::pair<int, int>> neighbors;
 	for (int i = 0; i < 16; i++)
 	{
 		int x_offset = x + eight[i];
@@ -206,12 +208,12 @@ std::vector<std::pair<int, int>> AlgoImages::getConnexeNeighborsPixel(Image& ima
 				uint8_t* p = image.getPixel(x_offset, y_offset);
 				if (p[0] == 255)
 				{
-					neigbhors.push_back(std::make_pair(x_offset, y_offset));
+					neighbors.push_back(std::make_pair(x_offset, y_offset));
 				}
 			}
 		}
 	}
-	return neigbhors;
+	return neighbors;
 }
 
 int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
@@ -270,21 +272,16 @@ void AlgoImages::cleanNoiseOnBinaryMask(Image& image, int threshold)
 	Image copy(image);
 	int w = copy.getWidth();
 	int h = copy.getHeight();
+
 	for (int x = 0; x < w; x++)
 	{
-		Image copy(image);
-		int w = copy.getWidth();
-		int h = copy.getHeight();
-		for (int x = 0; x < w; x++)
+		for (int y = 0; y < h; y++)
 		{
-			for (int y = 0; y < h; y++)
+			if (copy.getPixel(x, y)[0] == 255)
 			{
-				if (copy.getPixel(x, y)[0] == 255)
+				if (getConnexeComposanteSize(copy, x, y) < threshold)
 				{
-					if (getConnexeComposanteSize(copy, x, y) < threshold)
-					{
-						image = removeConnexeComposante(image, x, y);
-					}
+					image = removeConnexeComposante(image, x, y);
 				}
 			}
 		}

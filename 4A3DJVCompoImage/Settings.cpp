@@ -46,10 +46,10 @@ FadingState Settings::getFade() const
 	return this->fade;
 }
 
-bool Settings::getIsStepImage() const
-{
-	return this->isStepImage;
-}
+//bool Settings::getIsStepImage() const
+//{
+//	return this->isStepImage;
+//}
 
 bool Settings::getIsOverlapImage() const
 {
@@ -71,10 +71,10 @@ int Settings::getOverlap() const
 	return this->overlap;
 }
 
-int Settings::getStepDistance() const
-{
-	return this->stepDistance;
-}
+//int Settings::getStepDistance() const
+//{
+//	return this->stepDistance;
+//}
 
 int Settings::getMinDistance() const
 {
@@ -119,10 +119,10 @@ void Settings::setFade(FadingState fadingState)
 	this->fade = fadingState;
 }
 
-void Settings::setIsStepImage(bool isStepImage)
-{
-	this->isStepImage = isStepImage;
-}
+//void Settings::setIsStepImage(bool isStepImage)
+//{
+//	this->isStepImage = isStepImage;
+//}
 
 void Settings::setIsOverlapImage(bool isOverlapImage)
 {
@@ -141,11 +141,11 @@ void Settings::setOverlap(int val)
 
 }
 
-void Settings::setStepDistance(int val)
-{
-	this->stepDistance = val;
+//void Settings::setStepDistance(int val)
+//{
+//	this->stepDistance = val;
 
-}
+//}
 
 void Settings::setMinDistance(int val)
 {
