@@ -145,7 +145,7 @@ void AlgoImages::StartImageProcess()
 	getBackground(images, background);
 	Image image_final(background);
 	std::cout << "nb channels: " << image_final.getChannels();
-	writeImage(background, settings->getOutputDirectory(), "background.png"); 
+	writeImage(background, settings->getOutputDirectory(), "background.png");
 	float alpha = 1;
 	float alphaIncrement = 0;
 	if (settings->getFade() == Opaque)
@@ -170,15 +170,15 @@ void AlgoImages::StartImageProcess()
 		Image mask(images[0].getWidth(), images[0].getHeight(), images[0].getChannels());
 		getImageMask(images[i], background, mask, settings->getMaxMaskDiff());
 		//writeImage(mask, settings->getOutputDirectory(), "mask" + std::to_string(i) + ".png");
-		cleanNoiseOnBinaryMask(mask, 20);
-		//writeImage(mask, settings->getOutputDirectory(), "maskClean" + std::to_string(i) + ".png");
+		//cleanNoiseOnBinaryMask(mask, settings->getConnexeTreshold());
+		writeImage(mask, settings->getOutputDirectory(), "maskClean" + std::to_string(i) + ".png");
 		if (settings->getIsOverlapImage() && !selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
 		{
 			std::cout << "this cannot continue" << std::endl;
 			continue;
 		}
-		std::pair<int,int> p2 = getMiddleMask(mask);
-		if (getDistanceBetweenPoint(p1, p2) < 100) continue;
+		std::pair<int, int> p2 = getMiddleMask(mask);
+		if (getDistanceBetweenPoint(p1, p2) < 250) continue;
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
 		if (alpha + alphaIncrement > 1)
@@ -255,7 +255,7 @@ int AlgoImages::getConnexeComposanteSize(Image& image, int x, int y)
 	return totalSize;
 }
 
-void AlgoImages::removeConnexeComposante(Image& mask , int x, int y)
+void AlgoImages::removeConnexeComposante(Image& mask, int x, int y)
 {
 	std::deque<std::pair<int, int>> q;
 	q.push_back(std::make_pair(x, y));
@@ -507,7 +507,15 @@ std::pair<int, int> AlgoImages::getMiddleMask(Image& mask)
 			}
 		}
 	}
-	X /= denominator;
-	Y /= denominator;
+	if (denominator == 0)
+	{
+		denominator = 1;
+		X /= denominator;
+		Y /= denominator;
+	}
+	else {
+		X /= denominator;
+		Y /= denominator;
+	}
 	return std::make_pair(X, Y);
 }

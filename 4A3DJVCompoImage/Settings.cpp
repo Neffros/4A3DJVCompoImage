@@ -119,6 +119,11 @@ void Settings::setFade(FadingState fadingState)
 	this->fade = fadingState;
 }
 
+int Settings::getConnexeTreshold() const
+{
+	return this->connexeTreshold;
+}
+
 //void Settings::setIsStepImage(bool isStepImage)
 //{
 //	this->isStepImage = isStepImage;
@@ -140,6 +145,11 @@ void Settings::setOverlap(int val)
 	this->overlap = val;
 
 }
+void Settings::setConnexeThreshold(int treshold)
+{
+	this->connexeTreshold = treshold;
+}
+
 
 //void Settings::setStepDistance(int val)
 //{
