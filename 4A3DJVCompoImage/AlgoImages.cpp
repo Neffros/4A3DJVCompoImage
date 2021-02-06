@@ -174,7 +174,7 @@ void AlgoImages::StartImageProcess()
 		if (settings->getIsOverlapImage() && !selectionFromOverlap(maskFinal, mask, settings->getOverlap()))
 		{
 			std::cout << "this cannot continue" << std::endl;
-			//continue;
+			continue;
 		}
 		binaryMerge(&mask, &image_final, &images[i], alpha);//(255 - i*3) % 255);
 		alpha += alphaIncrement;
